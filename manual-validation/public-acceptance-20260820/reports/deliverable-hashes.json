@@ -1,0 +1,107 @@
+[
+  {
+    "Path": "ACCEPTANCE_REPORT.md",
+    "Bytes": 4628,
+    "Sha256": "E6FE0B6D064AA53DA18712F96B9465591580071CFCDC0B7272111FDCFEBF7C68"
+  },
+  {
+    "Path": "DELIVERABLES.md",
+    "Bytes": 1487,
+    "Sha256": "76D23F1923402FD4DD531D202F4C82D598E523973F9AF2227B5470F379B07D67"
+  },
+  {
+    "Path": "outputs/data-plot/final/figure.svg",
+    "Bytes": 32400,
+    "Sha256": "78B24E7C0B00679E3BCE26BDCDD8E2BCE7D7B08D774EBE0F72F0B6C59FC6A3ED"
+  },
+  {
+    "Path": "outputs/data-plot/final/figure.pdf",
+    "Bytes": 18757,
+    "Sha256": "E5A20D98F8F8BCFAC3D9CF524D95A4ECEF5DE4569FD6B2F5648BC5ECCF69781B"
+  },
+  {
+    "Path": "outputs/data-plot/final/figure.png",
+    "Bytes": 37119,
+    "Sha256": "B5D74D51873F977955E67A92F910030EA9331C36E3BC3DCD8F22FA7CC03F4273"
+  },
+  {
+    "Path": "outputs/illustration/final/figure.svg",
+    "Bytes": 3376,
+    "Sha256": "A52C0BFDAE57E669FF3F639BACF30CBEB42572D34C068E2DADAE04CAC57968A1"
+  },
+  {
+    "Path": "outputs/illustration/final/figure.pdf",
+    "Bytes": 36793,
+    "Sha256": "C382DDA6C6AD67A828029F131C091A21E2A89B903BFFAB064E799E9C438385E3"
+  },
+  {
+    "Path": "outputs/illustration/final/figure.png",
+    "Bytes": 8643,
+    "Sha256": "773EE694AA4930E5002148CCF5FD3C96D434D480A5038AEE1DDEB610EF304082"
+  },
+  {
+    "Path": "outputs/illustration/sources/panel_a.drawio",
+    "Bytes": 3376,
+    "Sha256": "4E17886DEFD8A9088CD35E64F23DA19504AEE6EA59D244DEF54DE3F831EB62BC"
+  },
+  {
+    "Path": "outputs/composite/final/figure.svg",
+    "Bytes": 35515,
+    "Sha256": "A258D83FCBAFCF89220FCECAB829C9AE82F94A6A54A5757DB8E12D64FE155422"
+  },
+  {
+    "Path": "outputs/composite/final/figure.pdf",
+    "Bytes": 54052,
+    "Sha256": "1A6179516FD45A448FD1C43B919118E779DD3798CC5A316900B51EE6C9F31862"
+  },
+  {
+    "Path": "outputs/composite/final/figure.png",
+    "Bytes": 45740,
+    "Sha256": "80EF4D9E494142C4EEA2C9530658F3A8D215BD15FC6D6E52E19CC0B795A004F8"
+  },
+  {
+    "Path": "outputs/composite/sources/panel_a.drawio",
+    "Bytes": 3376,
+    "Sha256": "532E52DC78BC8BAA718CCDCC30D242FE9508FEAB8EDDC99C5B611828D357ACA0"
+  },
+  {
+    "Path": "outputs/edit/final/figure.svg",
+    "Bytes": 316047,
+    "Sha256": "1416E2886DF871B41896030C8602C8A8128F4A840EFC26F41E508685D5E775B3"
+  },
+  {
+    "Path": "outputs/edit/final/figure.png",
+    "Bytes": 92167,
+    "Sha256": "7C29903B31A564D6B20D3126A840AF0B64A72DA25853840A348A1FC00E68060A"
+  },
+  {
+    "Path": "outputs/reconstruction-artificial-neuron-retry-gemini/final.svg",
+    "Bytes": 3845,
+    "Sha256": "A6CC3F66B7E92F06E1C80A493D7521DB655D014368D9A8552FA24C37E52A69C1"
+  },
+  {
+    "Path": "outputs/reconstruction-artificial-neuron-retry-gemini/final-preview.png",
+    "Bytes": 33439,
+    "Sha256": "315948C29AC11ECD48AE5343D8F57AFA0FBBF20C5A85D196A1B0218AB5C86075"
+  },
+  {
+    "Path": "outputs/reconstruction-neural-network-ground-truth-retry-gemini/final.svg",
+    "Bytes": 6414,
+    "Sha256": "1D504399BED11F630B240FCBDB2280C23BCE0ECAFC13ADF7714A90BAF2B5FCC0"
+  },
+  {
+    "Path": "outputs/reconstruction-neural-network-ground-truth-retry-gemini/final-preview.png",
+    "Bytes": 66492,
+    "Sha256": "56F49A475397791B08285A7145487CD2F916A17BC08857895AC2A2A3EE6904C7"
+  },
+  {
+    "Path": "reports/acceptance-summary.json",
+    "Bytes": 2136,
+    "Sha256": "528B9F8AA451B07EBC892A9901A4DEF43E2787F51AB755F3E958397CCE6044D9"
+  },
+  {
+    "Path": "reports/visual-qa-contact-sheet.png",
+    "Bytes": 327732,
+    "Sha256": "6D1F9D597957FFCDE087B5DC50A04F9F709C8AB3FD9B6FB1EDEB4667527DA180"
+  }
+]

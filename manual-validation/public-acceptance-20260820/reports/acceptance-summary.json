@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-08-20",
+  "overall_status": "conditional-pass",
+  "unit_tests": 29,
+  "routes": [
+    {
+      "Route": "data-plot",
+      "Status": "pass"
+    },
+    {
+      "Route": "illustration",
+      "Status": "pass"
+    },
+    {
+      "Route": "composite",
+      "Status": "pass"
+    },
+    {
+      "Route": "edit",
+      "Status": "pass"
+    }
+  ],
+  "data_provenance": {
+    "marks": 150,
+    "x_column": "petal_width_cm",
+    "y_column": "petal_length_cm",
+    "source_hash_recorded": true
+  },
+  "drawio": {
+    "vertices": 6,
+    "edges": 5,
+    "edge_geometry": 5,
+    "xml_comments": 0
+  },
+  "native_edit": {
+    "status": "applied",
+    "source_hash": "689113367fffdc7b6b515d223f912adefe093f0e88ddc163b0843c9b4c312838",
+    "output_hash": "6be7bb336d708581ae5a9c361419d25eaab5e9e647fb475086f95f77f5815c6e"
+  },
+  "reconstruction": {
+    "artificial_neuron": {
+      "status": "pass",
+      "pixel_similarity": 0.936347,
+      "foreground_iou": 0.323942,
+      "vector_shapes": 33
+    },
+    "neural_network": {
+      "status": "warn",
+      "pixel_similarity": 0.917713,
+      "foreground_iou": 0.070087,
+      "vector_shapes": 66,
+      "visual_note": "Layer topology is recognizable, but the right-side Output label is clipped and foreground IoU is low."
+    },
+    "optimized_attempt": {
+      "status": "fail",
+      "reason": "visual regression after one optimization iteration: black background and missing edges/labels"
+    }
+  },
+  "pdf": {
+    "count": 3,
+    "all_single_page": true,
+    "poppler_rendered": true,
+    "text_extractable": true
+  },
+  "security": {
+    "secret_match_files": 0
+  },
+  "issues_fixed": [
+    "scatter x-axis incorrectly selected categorical species",
+    "scatter title incorrectly used comparison wording",
+    "embedded-raster fallback incorrectly returned success"
+  ],
+  "limitations": [
+    "no-SAM reconstruction has no icon segmentation",
+    "neural-network reconstruction clipped Output label",
+    "one model optimization iteration caused visual regression"
+  ]
+}

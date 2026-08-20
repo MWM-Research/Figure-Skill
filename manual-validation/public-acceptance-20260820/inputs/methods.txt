@@ -1,0 +1,4 @@
+Input Iris data flows to a train/test split, then to standard scaler, then to logistic regression, then to prediction, and finally to accuracy.
+
+Source: scikit-learn Getting Started, https://scikit-learn.org/stable/getting_started.html
+This sentence is a local paraphrase created for public workflow acceptance.

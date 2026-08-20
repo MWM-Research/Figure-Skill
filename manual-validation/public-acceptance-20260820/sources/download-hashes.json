@@ -1,0 +1,42 @@
+[
+  {
+    "Path": "sources/raw/artificial-neuron-scheme.png",
+    "Bytes": 21922,
+    "Sha256": "6DFACD28F43D3433D54148B4C2AD6E4A1B828947512D0F877D6B9E341A0C675F"
+  },
+  {
+    "Path": "sources/raw/iris.zip",
+    "Bytes": 3738,
+    "Sha256": "D11FE30213D36434A0879AAB7CB00CE3C812EB7BA2495874438ABFF7B7B762E9"
+  },
+  {
+    "Path": "sources/raw/neural-network-ground-truth.png",
+    "Bytes": 150849,
+    "Sha256": "DA32A6EB19881F6D2C766ACEFE97B53E2339AF9E9599ED2D4747D237B1A45990"
+  },
+  {
+    "Path": "sources/raw/neural-network-ground-truth.svg",
+    "Bytes": 325193,
+    "Sha256": "689113367FFFDC7B6B515D223F912ADEFE093F0E88DDC163B0843C9B4C312838"
+  },
+  {
+    "Path": "sources/raw/iris/bezdekIris.data",
+    "Bytes": 4551,
+    "Sha256": "0FED2A99DB77EC533A62DC66894D3EC6DF3B58B6A8F3CF4A6B47E4086B7F97DC"
+  },
+  {
+    "Path": "sources/raw/iris/Index",
+    "Bytes": 105,
+    "Sha256": "FC3A4464FD2138CA649BE5E0311270F5CF1F045C8E3FF1CD458F663DFE4F6790"
+  },
+  {
+    "Path": "sources/raw/iris/iris.data",
+    "Bytes": 4551,
+    "Sha256": "6F608B71A7317216319B4D27B4D9BC84E6ABD734EDA7872B71A458569E2656C0"
+  },
+  {
+    "Path": "sources/raw/iris/iris.names",
+    "Bytes": 2998,
+    "Sha256": "71A09FB3EE237614CDB9C09D06E8AE1F610CE2A274C0D77272FEA8A233E5EEA3"
+  }
+]

@@ -1,0 +1,14 @@
+.venv/
+.external/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+outputs/
+tmp/
+dist/
+manual-validation/
+.env
+.env.*
+!.env.example
+*.log
