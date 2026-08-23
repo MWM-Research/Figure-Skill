@@ -2,6 +2,24 @@
 
 All notable project changes are recorded here.
 
+## 0.3.0 - 2026-08-23
+
+### Added
+
+- Added the `mwm-research` private Codex Marketplace manifest.
+- Added a validated `figure-skill` Codex Plugin manifest.
+- Added Plugin and Marketplace checks to release verification.
+
+### Changed
+
+- Moved the canonical Skill source to `plugins/figure-skill/skills/figure-skill`.
+- Team installation now uses `codex plugin marketplace add` and `codex plugin add` instead of manual folder copying.
+- Release archives now include the complete Marketplace and Plugin structure.
+
+### Validation
+
+- 33 automated tests pass, including Plugin/Marketplace manifest consistency checks.
+
 ## 0.2.0 - 2026-08-23
 
 ### Changed

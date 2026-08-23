@@ -17,7 +17,7 @@ def require_matplotlib():
     try:
         import matplotlib.pyplot as plt  # type: ignore
     except ImportError as exc:
-        raise SystemExit("matplotlib is required; install figure-skill/requirements.txt") from exc
+        raise SystemExit("matplotlib is required; install the dependencies listed in this Skill's requirements.txt") from exc
     return plt
 
 

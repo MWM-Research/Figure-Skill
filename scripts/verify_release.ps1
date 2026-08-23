@@ -6,7 +6,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$SkillRoot = Join-Path $ProjectRoot "figure-skill"
+$PluginRoot = Join-Path $ProjectRoot "plugins\figure-skill"
+$SkillRoot = Join-Path $PluginRoot "skills\figure-skill"
 $Version = (Get-Content -Raw -Encoding UTF8 (Join-Path $ProjectRoot "VERSION")).Trim()
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION is not semantic: $Version" }
 
@@ -60,6 +61,19 @@ if (-not (Test-Path -LiteralPath $QuickValidate)) {
 & $Python $QuickValidate $SkillRoot
 if ($LASTEXITCODE -ne 0) { throw "skill validation failed" }
 
+$PluginValidate = Join-Path $CodexHome "skills\.system\plugin-creator\scripts\validate_plugin.py"
+if (-not (Test-Path -LiteralPath $PluginValidate)) {
+    throw "Codex plugin validator was not found: $PluginValidate"
+}
+& $Python $PluginValidate $PluginRoot
+if ($LASTEXITCODE -ne 0) { throw "plugin validation failed" }
+$MarketplacePath = Join-Path $ProjectRoot ".agents\plugins\marketplace.json"
+$Marketplace = Get-Content -Raw -Encoding UTF8 $MarketplacePath | ConvertFrom-Json
+$MarketplaceEntry = @($Marketplace.plugins | Where-Object { $_.name -eq "figure-skill" })
+if ($Marketplace.name -ne "mwm-research" -or $MarketplaceEntry.Count -ne 1 -or $MarketplaceEntry[0].source.path -ne "./plugins/figure-skill") {
+    throw "team marketplace manifest is inconsistent"
+}
+
 $AcceptanceStatus = "skipped"
 if (-not $SkipAcceptance) {
     $AcceptanceSummary = Join-Path $ProjectRoot "manual-validation\public-acceptance-20260820\reports\acceptance-summary.json"
@@ -75,7 +89,8 @@ if (-not $SkipAcceptance) {
 }
 
 $ScanTargets = @(
-    (Join-Path $ProjectRoot "figure-skill"),
+    (Join-Path $ProjectRoot "plugins"),
+    (Join-Path $ProjectRoot ".agents"),
     (Join-Path $ProjectRoot "scripts"),
     (Join-Path $ProjectRoot "README.md"),
     (Join-Path $ProjectRoot "CHANGELOG.md"),
@@ -91,8 +106,10 @@ $Result = [ordered]@{
     verified_at = (Get-Date).ToString("o")
     python = $Environment.python
     core = $Environment.core
-    automated_tests = 31
+    automated_tests = 33
     skill_validation = "pass"
+    plugin_validation = "pass"
+    marketplace_validation = "pass"
     acceptance = $AcceptanceStatus
     secret_matches = 0
     drawio_repair_requested = [bool]$RepairDrawio

@@ -25,10 +25,11 @@ def load_module(name: str, path: Path):
     return module
 
 
-ASSEMBLER = load_module("public_acceptance_assembler", PROJECT / "figure-skill" / "scripts" / "assemble_figure.py")
+SKILL = PROJECT / "plugins" / "figure-skill" / "skills" / "figure-skill"
+ASSEMBLER = load_module("public_acceptance_assembler", SKILL / "scripts" / "assemble_figure.py")
 NO_SAM = load_module(
     "public_acceptance_no_sam",
-    PROJECT / "figure-skill" / "scripts" / "adapters" / "autofigure_no_sam_runner.py",
+    SKILL / "scripts" / "adapters" / "autofigure_no_sam_runner.py",
 )
 
 

@@ -35,7 +35,8 @@ function Copy-Tree([string]$Source, [string]$Destination) {
 foreach ($FileName in @("README.md", "VERSION", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md", ".gitignore")) {
     Copy-Item -LiteralPath (Join-Path $ProjectRoot $FileName) -Destination (Join-Path $Stage $FileName) -Force
 }
-Copy-Tree (Join-Path $ProjectRoot "figure-skill") (Join-Path $Stage "figure-skill")
+Copy-Tree (Join-Path $ProjectRoot "plugins") (Join-Path $Stage "plugins")
+Copy-Tree (Join-Path $ProjectRoot ".agents") (Join-Path $Stage ".agents")
 Copy-Tree (Join-Path $ProjectRoot "scripts") (Join-Path $Stage "scripts")
 Copy-Tree (Join-Path $ProjectRoot ".github") (Join-Path $Stage ".github")
 
@@ -84,7 +85,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Zip = [IO.Compression.ZipFile]::OpenRead($Archive)
 try {
     $Entries = @($Zip.Entries | ForEach-Object { $_.FullName.Replace('\\', '/') })
-    foreach ($Required in @("VERSION", "README.md", "figure-skill/SKILL.md", "scripts/verify_release.ps1", "release-manifest.json")) {
+    foreach ($Required in @("VERSION", "README.md", ".agents/plugins/marketplace.json", "plugins/figure-skill/.codex-plugin/plugin.json", "plugins/figure-skill/skills/figure-skill/SKILL.md", "scripts/verify_release.ps1", "release-manifest.json")) {
         if ($Required -notin $Entries) { throw "release archive is missing: $Required" }
     }
     if (@($Entries | Where-Object { $_ -match '(^|/)(__pycache__|\.venv|\.external)(/|$)|\.pyc$' }).Count -ne 0) {

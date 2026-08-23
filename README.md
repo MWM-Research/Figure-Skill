@@ -2,7 +2,29 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.2.0`
+Current internal release: `v0.3.0`
+
+## 团队安装
+
+团队成员获得 `MWM-Research/Figure-Skill` 私有仓库权限后，只需：
+
+```powershell
+codex plugin marketplace add MWM-Research/Figure-Skill
+codex plugin add figure-skill@mwm-research
+```
+
+安装后新建一个 Codex 任务，直接使用：
+
+```text
+使用 $figure-skill 根据我的研究材料生成科研图。
+```
+
+更新 Marketplace：
+
+```powershell
+codex plugin marketplace upgrade mwm-research
+codex plugin add figure-skill@mwm-research
+```
 
 ## 当前能力
 
@@ -20,14 +42,14 @@ Current internal release: `v0.2.0`
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r .\figure-skill\requirements.txt
-.\.venv\Scripts\python.exe .\figure-skill\scripts\check_environment.py
+.\.venv\Scripts\python.exe -m pip install -r .\plugins\figure-skill\skills\figure-skill\requirements.txt
+.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\check_environment.py
 ```
 
 先生成计划：
 
 ```powershell
-.\.venv\Scripts\python.exe .\figure-skill\scripts\run_workflow.py `
+.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
   --input .\manual-validation\cases\composite `
   --brief "Create a method architecture and accuracy comparison figure" `
   --output .\outputs\demo `
@@ -37,7 +59,7 @@ python -m venv .venv
 人工检查并清空 `open_questions` 后继续：
 
 ```powershell
-.\.venv\Scripts\python.exe .\figure-skill\scripts\run_workflow.py `
+.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
   --plan .\outputs\demo\figure-plan.json `
   --output .\outputs\demo `
   --approve-plan
@@ -53,7 +75,7 @@ python -m venv .venv
 ```
 
 ```powershell
-.\.venv\Scripts\python.exe .\figure-skill\scripts\run_workflow.py `
+.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
   --input .\inputs\existing-figure `
   --brief "将 Classifier 精确替换为 Retrieval" `
   --route edit `
@@ -65,7 +87,7 @@ python -m venv .venv
 ## 测试
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s .\figure-skill\tests -v
+.\.venv\Scripts\python.exe -m unittest discover -s .\plugins\figure-skill\skills\figure-skill\tests -v
 ```
 
 完整发布验收：
@@ -80,11 +102,11 @@ python -m venv .venv
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.2.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.3.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
-外部生成服务默认不会执行。需要时先阅读 `figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
+外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 
-团队清单中各候选项目的取舍见 `figure-skill/references/backend-selection.md`。当前默认选择作者版 PaperBanana；社区版保留为替代方案，托管网站不自动上传材料，失效仓库不作为依赖。
+团队清单中各候选项目的取舍见 `plugins/figure-skill/skills/figure-skill/references/backend-selection.md`。当前默认选择作者版 PaperBanana；社区版保留为替代方案，托管网站不自动上传材料，失效仓库不作为依赖。
 
 安装官方 draw.io Codex 插件：
 
@@ -108,7 +130,7 @@ python -m venv .venv
 
 ```powershell
 .\.external\venvs\paperbanana\Scripts\python.exe `
-  .\figure-skill\scripts\adapters\paperbanana_adapter.py `
+  .\plugins\figure-skill\skills\figure-skill\scripts\adapters\paperbanana_adapter.py `
   .\outputs\demo\figure-plan.json `
   --repo .\.external\upstreams\PaperBanana `
   --output-dir .\outputs\demo\external\paperbanana
@@ -118,7 +140,7 @@ AutoFigure-Edit 同理使用独立解释器。先不带 `--execute` 审查清单
 
 ```powershell
 .\.external\venvs\autofigure-edit\Scripts\python.exe `
-  .\figure-skill\scripts\adapters\autofigure_edit_adapter.py `
+  .\plugins\figure-skill\skills\figure-skill\scripts\adapters\autofigure_edit_adapter.py `
   .\outputs\demo\figure-plan.json `
   --repo .\.external\upstreams\AutoFigure-Edit `
   --output-dir .\outputs\demo\external\autofigure `

@@ -120,6 +120,34 @@ class EnvironmentCheckerTests(unittest.TestCase):
         self.assertEqual(status, {"available": False, "scopes": []})
 
 
+class PluginPackagingTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.repo = SKILL.parents[3]
+        cls.plugin_root = SKILL.parents[1]
+
+    def test_plugin_manifest_matches_skill_and_release_version(self):
+        manifest = json.loads(
+            (self.plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        version = (self.repo / "VERSION").read_text(encoding="utf-8").strip()
+        self.assertEqual(manifest["name"], "figure-skill")
+        self.assertEqual(manifest["version"], version)
+        self.assertEqual(manifest["skills"], "./skills/")
+        self.assertEqual(manifest["interface"]["displayName"], "Figure Skill")
+        self.assertEqual(manifest["author"]["name"], "MWM-Research")
+
+    def test_team_marketplace_points_to_plugin(self):
+        marketplace = json.loads(
+            (self.repo / ".agents" / "plugins" / "marketplace.json").read_text(encoding="utf-8")
+        )
+        entries = [entry for entry in marketplace["plugins"] if entry["name"] == "figure-skill"]
+        self.assertEqual(marketplace["name"], "mwm-research")
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["source"]["path"], "./plugins/figure-skill")
+        self.assertEqual(entries[0]["policy"]["installation"], "AVAILABLE")
+
+
 class PlannerTests(unittest.TestCase):
     def inventory_for(self, files: dict[str, str]) -> dict:
         self.temp = tempfile.TemporaryDirectory()
