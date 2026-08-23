@@ -19,4 +19,4 @@ Public acceptance evidence additionally uses:
 - Wikimedia Commons `Artificial Neuron Scheme.png`: public domain.
 - scikit-learn documentation/code: BSD license.
 
-No project-level open-source license has been selected. Release `v0.1.0` is an internal team release unless the owner adds an explicit project license.
+No project-level open-source license has been selected. Figure Skill releases are internal team releases unless the owner adds an explicit project license.

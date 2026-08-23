@@ -1,4 +1,4 @@
-# Scientific Figure Workflow - Public Acceptance Report
+# Figure Skill - Public Acceptance Report
 
 Date: 2026-08-20
 
@@ -96,4 +96,4 @@ Do not accept a reconstruction solely because the command exits successfully. Re
 
 ## Recommended next step
 
-Run the same matrix on one real, non-sensitive team project. Promote the project to `v0.1.0` only after the real case passes and the repository/CI maintenance gaps are fixed.
+Run the same matrix on one real, non-sensitive team project before promoting Figure Skill beyond internal pilot status.

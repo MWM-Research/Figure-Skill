@@ -2,6 +2,22 @@
 
 All notable project changes are recorded here.
 
+## 0.2.0 - 2026-08-23
+
+### Changed
+
+- Renamed the Codex Skill from `scientific-figure-workflow` to `figure-skill`.
+- Changed the display name from `Scientific Figure Workflow` to `Figure Skill`.
+- Changed the invocation from `$scientific-figure-workflow` to `$figure-skill`.
+- Renamed source, CI, verification, and release-package paths to `figure-skill`.
+- Renamed the internal release archive to `figure-skill-v0.2.0.zip`.
+
+### Migration
+
+- Install the new Skill at `$CODEX_HOME/skills/figure-skill`.
+- Remove or deactivate the old `$CODEX_HOME/skills/scientific-figure-workflow` copy after verifying the new installation.
+- Existing figure plans and generated outputs remain compatible.
+
 ## 0.1.0 - 2026-08-20
 
 ### Added

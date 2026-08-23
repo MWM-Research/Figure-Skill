@@ -1,4 +1,4 @@
-# Scientific Figure Workflow - Verification Summary
+# Figure Skill - Verification Summary
 
 Date: 2026-07-31
 

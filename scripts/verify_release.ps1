@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$SkillRoot = Join-Path $ProjectRoot "scientific-figure-workflow"
+$SkillRoot = Join-Path $ProjectRoot "figure-skill"
 $Version = (Get-Content -Raw -Encoding UTF8 (Join-Path $ProjectRoot "VERSION")).Trim()
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION is not semantic: $Version" }
 
@@ -75,7 +75,7 @@ if (-not $SkipAcceptance) {
 }
 
 $ScanTargets = @(
-    (Join-Path $ProjectRoot "scientific-figure-workflow"),
+    (Join-Path $ProjectRoot "figure-skill"),
     (Join-Path $ProjectRoot "scripts"),
     (Join-Path $ProjectRoot "README.md"),
     (Join-Path $ProjectRoot "CHANGELOG.md"),

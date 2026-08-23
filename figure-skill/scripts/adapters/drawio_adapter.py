@@ -20,7 +20,7 @@ def render_drawio(panel: dict, output: Path) -> dict:
     if not 2 <= len(entities) <= 10:
         raise ValueError(f"panel {panel.get('id')} requires 2-10 entities")
     root = ET.Element("mxfile", {
-        "host": "scientific-figure-workflow",
+        "host": "figure-skill",
         "modified": datetime.now(timezone.utc).isoformat(),
         "agent": "Codex",
         "version": "24.7.17",

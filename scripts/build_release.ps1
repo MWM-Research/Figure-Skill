@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Version = (Get-Content -Raw -Encoding UTF8 (Join-Path $ProjectRoot "VERSION")).Trim()
 $Dist = Join-Path $ProjectRoot "dist"
-$Archive = Join-Path $Dist "scientific-figure-workflow-v$Version.zip"
+$Archive = Join-Path $Dist "figure-skill-v$Version.zip"
 if ((Test-Path -LiteralPath $Archive) -and -not $Force) {
     throw "release archive already exists; pass -Force to replace it: $Archive"
 }
@@ -35,7 +35,7 @@ function Copy-Tree([string]$Source, [string]$Destination) {
 foreach ($FileName in @("README.md", "VERSION", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md", ".gitignore")) {
     Copy-Item -LiteralPath (Join-Path $ProjectRoot $FileName) -Destination (Join-Path $Stage $FileName) -Force
 }
-Copy-Tree (Join-Path $ProjectRoot "scientific-figure-workflow") (Join-Path $Stage "scientific-figure-workflow")
+Copy-Tree (Join-Path $ProjectRoot "figure-skill") (Join-Path $Stage "figure-skill")
 Copy-Tree (Join-Path $ProjectRoot "scripts") (Join-Path $Stage "scripts")
 Copy-Tree (Join-Path $ProjectRoot ".github") (Join-Path $Stage ".github")
 
@@ -84,7 +84,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Zip = [IO.Compression.ZipFile]::OpenRead($Archive)
 try {
     $Entries = @($Zip.Entries | ForEach-Object { $_.FullName.Replace('\\', '/') })
-    foreach ($Required in @("VERSION", "README.md", "scientific-figure-workflow/SKILL.md", "scripts/verify_release.ps1", "release-manifest.json")) {
+    foreach ($Required in @("VERSION", "README.md", "figure-skill/SKILL.md", "scripts/verify_release.ps1", "release-manifest.json")) {
         if ($Required -notin $Entries) { throw "release archive is missing: $Required" }
     }
     if (@($Entries | Where-Object { $_ -match '(^|/)(__pycache__|\.venv|\.external)(/|$)|\.pyc$' }).Count -ne 0) {

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Scientific Figure Workflow"
-  short_description: "Route, generate, edit, and QA scientific figures"
-  default_prompt: "Use $scientific-figure-workflow to turn my research content or experiment outputs into an editable, publication-ready figure."

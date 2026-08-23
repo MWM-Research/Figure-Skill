@@ -14,9 +14,9 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install dependencies
-        run: python -m pip install -r scientific-figure-workflow/requirements.txt
+        run: python -m pip install -r figure-skill/requirements.txt
       - name: Compile scripts
         shell: pwsh
-        run: python -m py_compile (Get-ChildItem scientific-figure-workflow/scripts -Recurse -Filter *.py | ForEach-Object FullName)
+        run: python -m py_compile (Get-ChildItem figure-skill/scripts -Recurse -Filter *.py | ForEach-Object FullName)
       - name: Run tests
-        run: python -m unittest discover -s scientific-figure-workflow/tests -v
+        run: python -m unittest discover -s figure-skill/tests -v

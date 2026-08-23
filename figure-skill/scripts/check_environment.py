@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check core and optional scientific-figure-workflow runtime capabilities."""
+"""Check core and optional Figure Skill runtime capabilities."""
 
 from __future__ import annotations
 

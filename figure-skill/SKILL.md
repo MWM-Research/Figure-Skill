@@ -1,9 +1,9 @@
 ---
-name: scientific-figure-workflow
+name: figure-skill
 description: Route research manuscripts, methods, captions, reference figures, and experiment outputs into reproducible scientific illustration, data-plot, figure-editing, and composite workflows. Use when Codex needs to plan, generate, edit, or quality-check publication figures; create architecture, mechanism, workflow, graphical-abstract, ablation, robustness, or multi-panel figures; or coordinate tools such as PaperBanana, AutoFigure-Edit, Matplotlib, draw.io, and image generation while preserving scientific evidence boundaries.
 ---
 
-# Scientific Figure Workflow
+# Figure Skill
 
 Turn heterogeneous research inputs into editable, reviewable figures. Treat scientific correctness and provenance as hard constraints.
 

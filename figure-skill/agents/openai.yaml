@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figure Skill"
+  short_description: "Generate, edit, trace, and QA scientific figures"
+  default_prompt: "Use $figure-skill to turn my research content or experiment outputs into an editable, publication-ready figure."
