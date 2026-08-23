@@ -1,6 +1,6 @@
 {
   "name": "figure-skill",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Evidence-aware scientific figure generation, editing, provenance, and QA for Codex.",
   "author": {
     "name": "MWM-Research",

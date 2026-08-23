@@ -7,11 +7,14 @@ on:
 jobs:
   workflow-tests:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install dependencies
         run: python -m pip install -r plugins/figure-skill/skills/figure-skill/requirements.txt
@@ -20,3 +23,16 @@ jobs:
         run: python -m py_compile (Get-ChildItem plugins/figure-skill/skills/figure-skill/scripts -Recurse -Filter *.py | ForEach-Object FullName)
       - name: Run tests
         run: python -m unittest discover -s plugins/figure-skill/skills/figure-skill/tests -v
+      - name: Verify clean runtime bootstrap outside the repository
+        shell: pwsh
+        run: |
+          $env:FIGURE_SKILL_RUNTIME_ROOT = Join-Path $env:RUNNER_TEMP "figure-skill-runtime"
+          $launcher = Join-Path $env:GITHUB_WORKSPACE "plugins\figure-skill\skills\figure-skill\scripts\figure.py"
+          Push-Location $env:RUNNER_TEMP
+          try {
+            python $launcher bootstrap
+            python $launcher runtime-path
+          }
+          finally {
+            Pop-Location
+          }

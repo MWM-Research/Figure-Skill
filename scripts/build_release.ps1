@@ -85,7 +85,18 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Zip = [IO.Compression.ZipFile]::OpenRead($Archive)
 try {
     $Entries = @($Zip.Entries | ForEach-Object { $_.FullName.Replace('\\', '/') })
-    foreach ($Required in @("VERSION", "README.md", ".agents/plugins/marketplace.json", "plugins/figure-skill/.codex-plugin/plugin.json", "plugins/figure-skill/skills/figure-skill/SKILL.md", "scripts/verify_release.ps1", "release-manifest.json")) {
+    foreach ($Required in @(
+        "VERSION",
+        "README.md",
+        ".agents/plugins/marketplace.json",
+        "plugins/figure-skill/.codex-plugin/plugin.json",
+        "plugins/figure-skill/skills/figure-skill/SKILL.md",
+        "plugins/figure-skill/skills/figure-skill/requirements-lock.txt",
+        "plugins/figure-skill/skills/figure-skill/scripts/figure.py",
+        "plugins/figure-skill/skills/figure-skill/scripts/figure.ps1",
+        "scripts/verify_release.ps1",
+        "release-manifest.json"
+    )) {
         if ($Required -notin $Entries) { throw "release archive is missing: $Required" }
     }
     if (@($Entries | Where-Object { $_ -match '(^|/)(__pycache__|\.venv|\.external)(/|$)|\.pyc$' }).Count -ne 0) {

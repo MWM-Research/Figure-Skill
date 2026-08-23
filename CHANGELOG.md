@@ -2,6 +2,19 @@
 
 All notable project changes are recorded here.
 
+## 0.4.0 - 2026-08-23
+
+### Added
+
+- Added a current-working-directory-independent launcher for bootstrap, health checks, workflows, and QA.
+- Added a fully pinned dependency lock and a versioned runtime under the user's Codex directory.
+- Added runtime bootstrap and path-independence tests.
+
+### Changed
+
+- First use now installs core dependencies without modifying the research project's Python environment.
+- Missing optional AI repositories and credentials now report a non-blocking disabled state.
+
 ## 0.3.0 - 2026-08-23
 
 ### Added

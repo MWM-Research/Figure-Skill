@@ -88,6 +88,9 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
         "BIANXIE_API_KEY", "AUTOFIGURE_API_KEY", "FAL_KEY", "ROBOFLOW_API_KEY",
     )
     credentials = {name: credential_status(name) for name in credential_names}
+    paperbanana_available = bool(paperbanana_repo and (paperbanana_repo / "skill" / "run.py").is_file())
+    autofigure_available = bool(autofigure_repo and (autofigure_repo / "autofigure2.py").is_file())
+    core_ready = sys.version_info >= (3, 10) and matplotlib["available"] and openpyxl["available"] and bool(browser)
     return {
         "schema_version": "1.0",
         "python": {
@@ -96,6 +99,7 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
             "supported": sys.version_info >= (3, 10),
         },
         "core": {
+            "ready": core_ready,
             "matplotlib": matplotlib,
             "openpyxl": openpyxl,
             "browser": {"available": bool(browser), "path": browser},
@@ -103,12 +107,19 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
         "optional": {
             "drawio_npx": {"available": bool(shutil.which("npx")), "command": shutil.which("npx")},
             "paperbanana_repo": {
-                "available": bool(paperbanana_repo and (paperbanana_repo / "skill" / "run.py").is_file()),
+                "available": paperbanana_available,
+                "status": "ready" if paperbanana_available else "optional-not-installed",
                 "path": str(paperbanana_repo.resolve()) if paperbanana_repo else None,
             },
             "autofigure_edit_repo": {
-                "available": bool(autofigure_repo and (autofigure_repo / "autofigure2.py").is_file()),
+                "available": autofigure_available,
+                "status": "ready" if autofigure_available else "optional-not-installed",
                 "path": str(autofigure_repo.resolve()) if autofigure_repo else None,
+            },
+            "ai_enhancement": {
+                "available": paperbanana_available or autofigure_available,
+                "status": "ready" if (paperbanana_available or autofigure_available) else "optional-disabled",
+                "blocks_core_workflow": False,
             },
             "credential_presence": {
                 name: status["available"] for name, status in credentials.items()
@@ -130,9 +141,7 @@ def main() -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text, encoding="utf-8")
     print(text)
-    core = report["core"]
-    ready = report["python"]["supported"] and core["matplotlib"]["available"] and core["openpyxl"]["available"] and core["browser"]["available"]
-    return 0 if ready else 1
+    return 0 if report["core"]["ready"] else 1
 
 
 if __name__ == "__main__":

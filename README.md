@@ -2,7 +2,7 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.3.0`
+Current internal release: `v0.4.0`
 
 ## 团队安装
 
@@ -18,6 +18,8 @@ codex plugin add figure-skill@mwm-research
 ```text
 使用 $figure-skill 根据我的研究材料生成科研图。
 ```
+
+第一次执行时，插件会在用户的 Codex 目录下创建按版本隔离的 Python 环境并安装锁定依赖；不会修改成员自己的项目环境。后续调用直接复用该环境。基础绘图不要求配置 API Key，PaperBanana 和 AutoFigure-Edit 缺失时会显示为可选增强未启用。
 
 更新 Marketplace：
 
@@ -41,15 +43,20 @@ codex plugin add figure-skill@mwm-research
 ## 快速开始
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r .\plugins\figure-skill\skills\figure-skill\requirements.txt
-.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\check_environment.py
+$FigureSkill = Resolve-Path .\plugins\figure-skill\skills\figure-skill
+python "$FigureSkill\scripts\figure.py" doctor
+```
+
+也可以在 Windows PowerShell 中使用包装入口：
+
+```powershell
+& "$FigureSkill\scripts\figure.ps1" doctor
 ```
 
 先生成计划：
 
 ```powershell
-.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
+python "$FigureSkill\scripts\figure.py" workflow `
   --input .\manual-validation\cases\composite `
   --brief "Create a method architecture and accuracy comparison figure" `
   --output .\outputs\demo `
@@ -59,7 +66,7 @@ python -m venv .venv
 人工检查并清空 `open_questions` 后继续：
 
 ```powershell
-.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
+python "$FigureSkill\scripts\figure.py" workflow `
   --plan .\outputs\demo\figure-plan.json `
   --output .\outputs\demo `
   --approve-plan
@@ -75,7 +82,7 @@ python -m venv .venv
 ```
 
 ```powershell
-.\.venv\Scripts\python.exe .\plugins\figure-skill\skills\figure-skill\scripts\run_workflow.py `
+python "$FigureSkill\scripts\figure.py" workflow `
   --input .\inputs\existing-figure `
   --brief "将 Classifier 精确替换为 Retrieval" `
   --route edit `
@@ -102,7 +109,7 @@ python -m venv .venv
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.3.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.4.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

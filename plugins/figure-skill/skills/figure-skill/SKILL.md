@@ -9,10 +9,20 @@ Turn heterogeneous research inputs into editable, reviewable figures. Treat scie
 
 ## Workflow
 
+Resolve `SKILL_ROOT` to the absolute directory containing this `SKILL.md`. Never assume that the user's current working directory is the Skill directory. Use the self-bootstrapping launcher at `SKILL_ROOT/scripts/figure.py`; it creates and reuses a versioned runtime under the user's Codex directory, then runs every internal script by absolute path.
+
+On first use, bootstrap and inspect the environment. This is safe to run again after an update:
+
+```powershell
+python "<SKILL_ROOT>/scripts/figure.py" doctor
+```
+
+The deterministic core must remain usable when optional AI repositories or credentials are absent. Report `optional-disabled` as an available downgrade, not as a core failure.
+
 1. Create a plan and stop for review:
 
    ```powershell
-   python scripts/run_workflow.py `
+   python "<SKILL_ROOT>/scripts/figure.py" workflow `
      --input <input-root> `
      --brief "<figure intent>" `
      --output <output-root> `
@@ -27,7 +37,7 @@ Turn heterogeneous research inputs into editable, reviewable figures. Treat scie
 3. Resume only after explicit human approval:
 
    ```powershell
-   python scripts/run_workflow.py `
+   python "<SKILL_ROOT>/scripts/figure.py" workflow `
      --plan <output-root>/figure-plan.json `
      --output <output-root> `
      --approve-plan
@@ -52,7 +62,7 @@ Turn heterogeneous research inputs into editable, reviewable figures. Treat scie
 7. Re-run QA after manual edits:
 
    ```powershell
-   python scripts/qa_figure.py <output-file-or-directory> --plan figure-plan.json --output qa-report.json
+   python "<SKILL_ROOT>/scripts/figure.py" qa <output-file-or-directory> --plan figure-plan.json --output qa-report.json
    ```
 
 8. Visually inspect `final/figure.png` and an independently rendered `final/figure.pdf` at publication size. Read [references/qa-checklist.md](references/qa-checklist.md) before declaring completion. Iterate until structural, provenance, and visual QA pass.
@@ -63,8 +73,8 @@ Turn heterogeneous research inputs into editable, reviewable figures. Treat scie
 - Use `scripts/backends/svg_diagram_backend.py` for 2-10 node architecture/workflow diagrams with explicit edges.
 - Use `scripts/backends/native_edit_backend.py` only for reviewed SVG `replace_text` and allowlisted `set_attribute` operations. It requires exact selectors, retains the original, and records source/output hashes plus each applied operation.
 - Use `scripts/assemble_figure.py` for single, horizontal, vertical, or 2-column grid assembly. It preserves SVG elements and uses local Edge/Chrome for PDF/PNG export.
-- Install `requirements.txt` into the selected Python environment before rendering.
-- Run `scripts/check_environment.py` to verify Python, Matplotlib, openpyxl, local browser export, optional repositories, and credential presence without printing secret values.
+- Let `scripts/figure.py` install `requirements-lock.txt` into its isolated, versioned runtime. Do not install packages into the user's project environment.
+- Run `scripts/figure.py doctor` to verify Python, Matplotlib, openpyxl, local browser export, optional repositories, and credential presence without printing secret values.
 
 ## Non-negotiable boundaries
 
@@ -81,7 +91,8 @@ Turn heterogeneous research inputs into editable, reviewable figures. Treat scie
 - The deterministic MVP does not call these external backends automatically; keep their future adapters isolated from the core evidence pipeline.
 - Read [references/external-backends.md](references/external-backends.md) before preparing or executing draw.io, Happy Figure, PaperBanana, or AutoFigure-Edit requests.
 - Read [references/backend-selection.md](references/backend-selection.md) before adding or replacing an external backend; it records the reviewed alternatives, licenses, and unavailable links from the team list.
-- From the project checkout, run `scripts/setup_external_backends.ps1` to create fixed-version, isolated PaperBanana and AutoFigure-Edit runtimes. Execute each adapter with its matching external Python interpreter.
+- PaperBanana and AutoFigure-Edit are optional AI enhancements and are not installed during core bootstrap. If they are absent, use deterministic plotting, SVG diagrams, native SVG editing, assembly, provenance, and QA without requesting an API key.
+- Only from a full project checkout, `scripts/setup_external_backends.ps1` can create fixed-version, isolated PaperBanana and AutoFigure-Edit runtimes. Plugin-only installations intentionally do not fetch third-party repositories.
 - Do not install, authenticate, upload unpublished material, or call paid services without user authorization.
 - Keep API keys outside plans, prompts, logs, and generated artifacts.
 - When no specialized backend is available, still deliver a figure brief, panel plan, deterministic plotting code where applicable, and an explicit handoff.
