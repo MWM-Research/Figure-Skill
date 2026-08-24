@@ -2,6 +2,20 @@
 
 All notable project changes are recorded here.
 
+## 0.8.0 - 2026-08-24
+
+### Added
+
+- Added a `hybrid-composite` route and reviewed raster/vector representation contracts.
+- Added generic SVG source auditing with `data-role`, exact tag/count checks, embedded PNG decoding, and source-asset SHA-256 multiset matching.
+- Added QA enforcement for current, passing hybrid audit reports bound to exact plan and SVG hashes.
+- Added positive, wrong-tag, and duplicate-content raster routing tests.
+
+### Changed
+
+- Hybrid Figure acceptance now depends on SVG source structure rather than visual appearance.
+- Raster roles represented by vector stand-ins and vector roles embedded as raster content fail the representation gate.
+
 ## 0.7.0 - 2026-08-24
 
 ### Added

@@ -228,10 +228,28 @@ def verify_annotation_provenance(path: Path, panel: dict) -> list[dict]:
         return [check("annotation-provenance-readable", "fail", file=str(path), detail=str(exc))]
 
 
+def verify_hybrid_audit(path: Path) -> list[dict]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        source = Path(str(data.get("source", "")))
+        plan_path = Path(str(data.get("plan", "")))
+        source_valid = source.is_file() and data.get("source_sha256") == sha256(source)
+        plan_valid = plan_path.is_file() and data.get("plan_sha256") == sha256(plan_path)
+        checks_pass = bool(data.get("checks")) and all(item.get("status") == "pass" for item in data["checks"])
+        return [
+            check("hybrid-audit-readable", "pass", file=str(path)),
+            check("hybrid-audit-source-hash", "pass" if source_valid else "fail", source=str(source)),
+            check("hybrid-audit-plan-hash", "pass" if plan_valid else "fail", plan=str(plan_path)),
+            check("hybrid-audit-contract", "pass" if data.get("status") == "pass" and checks_pass else "fail"),
+        ]
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        return [check("hybrid-audit-readable", "fail", file=str(path), detail=str(exc))]
+
+
 def run_qa(target: Path, plan: dict | None) -> dict:
     files = [target] if target.is_file() else sorted(path for path in target.rglob("*") if path.is_file())
     suffixes = {path.suffix.lower() for path in files}
-    raster_route = bool(plan and plan.get("route") == "raster-illustration")
+    raster_route = bool(plan and plan.get("route") in {"raster-illustration", "hybrid-composite"})
     technical_checks = [
         check("target-has-files", "pass" if files else "fail"),
         check("files-nonempty", "pass" if files and all(path.stat().st_size > 0 for path in files) else "fail"),
@@ -264,7 +282,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
         review_status = plan.get("review_status")
         technical_checks.append(check("plan-reviewed", "pass" if review_status == "approved" else "warn", value=review_status))
         planned = [
-            (str(panel.get("id", "")).lower(), ".png" if panel.get("type") == "raster-illustration" else ".svg")
+            (str(panel.get("id", "")).lower(), ".png" if panel.get("type") in {"raster-illustration", "hybrid-composite"} else ".svg")
             for panel in plan.get("panels", [])
         ]
         missing_panels = [
@@ -288,7 +306,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             technical_checks.append(check("edit-provenance-present", "pass" if edit_files else "fail"))
             for path in edit_files:
                 technical_checks.extend(verify_edit_provenance(path))
-        has_raster_panels = any(panel.get("type") == "raster-illustration" for panel in plan.get("panels", []))
+        has_raster_panels = any(panel.get("type") in {"raster-illustration", "hybrid-composite"} for panel in plan.get("panels", []))
         if has_raster_panels:
             generation_files = [path for path in files if path.name == "generation-provenance.json"]
             request_files = [path for path in files if path.name == "raster-illustration-request.json"]
@@ -296,7 +314,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             technical_checks.append(check("generation-request-present", "pass" if request_files else "fail"))
             for path in generation_files:
                 technical_checks.extend(verify_generation_provenance(path))
-            for panel in (panel for panel in plan.get("panels", []) if panel.get("type") == "raster-illustration"):
+            for panel in (panel for panel in plan.get("panels", []) if panel.get("type") in {"raster-illustration", "hybrid-composite"}):
                 if panel.get("annotation_spec", {}).get("mode") == "deterministic-overlay":
                     annotation_files = [path for path in files if path.name == "annotation-provenance.json"]
                     technical_checks.append(check(
@@ -330,6 +348,16 @@ def run_qa(target: Path, plan: dict | None) -> dict:
                     panel=str(panel_path) if panel_path else None,
                     final=str(final_path) if final_path else None,
                 ))
+        has_representation_contract = isinstance(plan.get("representation_contract"), dict) or any(
+            isinstance(panel.get("representation_contract"), dict) for panel in plan.get("panels", [])
+        )
+        if has_representation_contract:
+            audit_files = [path for path in files if path.name == "hybrid-structure-audit.json"]
+            technical_checks.append(check(
+                "hybrid-structure-audit-present", "pass" if len(audit_files) == 1 else "fail", count=len(audit_files)
+            ))
+            for path in audit_files:
+                technical_checks.extend(verify_hybrid_audit(path))
 
     scientific_status = "not-applicable"
     human_review_status = "not-required"

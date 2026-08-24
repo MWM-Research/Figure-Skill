@@ -110,7 +110,10 @@ def main() -> int:
     output = args.output.resolve()
     ensure_output_scope(output, continuing=bool(args.plan), force=args.force)
     plan, plan_path = create_plan(args, output)
-    raster_panels = [panel for panel in plan.get("panels", []) if panel.get("type") == "raster-illustration"]
+    raster_panels = [
+        panel for panel in plan.get("panels", [])
+        if panel.get("type") in {"raster-illustration", "hybrid-composite"}
+    ]
     effective_image_size = args.image_size
     if raster_panels:
         if len(raster_panels) != 1:
@@ -157,6 +160,22 @@ def main() -> int:
         directory.mkdir(parents=True, exist_ok=True)
 
     panel_types = {panel.get("type") for panel in plan.get("panels", [])}
+    if "hybrid-composite" in panel_types:
+        handoff = {
+            "schema_version": "1.0",
+            "route": "hybrid-composite",
+            "plan": str(plan_path),
+            "required_action": "Build a hybrid SVG whose data-role elements satisfy representation_contract, then run audit_hybrid_svg.py before QA.",
+            "audit_command": [
+                sys.executable, str(HERE / "audit_hybrid_svg.py"),
+                "--plan", str(plan_path), "--svg", "<hybrid-svg-source>",
+                "--asset-root", str(output), "--output", str(reports_dir / "hybrid-structure-audit.json"),
+            ],
+        }
+        handoff_path = sources_dir / "hybrid-composite-handoff.json"
+        handoff_path.write_text(json.dumps(handoff, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Hybrid composite handoff prepared; build and audit the reviewed representation contract -> {handoff_path}")
+        return 0
     if "raster-illustration" in panel_types:
         command = [
             sys.executable, str(HERE / "adapters" / "raster_illustration_adapter.py"), str(plan_path),

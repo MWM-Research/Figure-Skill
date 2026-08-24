@@ -50,6 +50,10 @@ Choose for multi-panel figures that combine plots and diagrams.
 
 Use `scripts/assemble_figure.py` to preserve panel SVGs in the final SVG and export review PDF/PNG files through a detected local Edge/Chrome browser.
 
+## Hybrid composite
+
+Choose when raster and vector representations intentionally coexist inside one Figure. Define a role-by-role `representation_contract`, compose a hybrid SVG with `data-role` attributes, and run `scripts/audit_hybrid_svg.py`. Read [hybrid-representation.md](hybrid-representation.md) for the contract and hash-audit workflow.
+
 ## Backend decision order
 
 1. Existing project-native plotting or vector source.

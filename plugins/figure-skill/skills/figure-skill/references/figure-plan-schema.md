@@ -5,7 +5,7 @@ Store plans as JSON with schema version `1.1`:
 ```json
 {
   "schema_version": "1.1",
-  "route": "data-plot | illustration | raster-illustration | edit | composite",
+  "route": "data-plot | illustration | raster-illustration | hybrid-composite | edit | composite",
   "route_source": "user | inferred",
   "brief": "What the figure must communicate",
   "input_root": "absolute input directory",
@@ -95,6 +95,8 @@ Use a generated raster illustration panel only for explicitly illustrative outpu
 ```
 
 For this route, set `editable_source_required` to `false`, set `generated_content_must_be_labeled` to `true`, and require PNG, generation provenance, and QA outputs rather than claiming an editable vector source.
+
+For a hybrid raster/vector Figure, add a `representation_contract` to its `hybrid-composite` panel. Read [hybrid-representation.md](hybrid-representation.md) for the full schema and audit requirements.
 
 Use an edit panel only with explicit, reviewable operations:
 

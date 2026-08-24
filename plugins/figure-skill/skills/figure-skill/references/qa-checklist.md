@@ -9,6 +9,7 @@
 - No generated element is presented as experimental evidence.
 - Generated raster output has a completed plan-derived scientific assessment and explicit human decision tied to exact plan/image hashes.
 - Generated raster text is produced by the deterministic overlay, exactly matches the visible-label allowlist, remains readable, and does not obscure required entities or relationships.
+- Hybrid SVG source has a passing representation-contract audit: embedded raster bytes match reviewed source assets, vector roles use the required SVG tags, and no unclassified images exist.
 - Caption and figure make the same claim.
 
 ## Visual

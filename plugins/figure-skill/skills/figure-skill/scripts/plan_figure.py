@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 
-ROUTES = ("illustration", "raster-illustration", "data-plot", "edit", "composite")
+ROUTES = ("illustration", "raster-illustration", "hybrid-composite", "data-plot", "edit", "composite")
 EDIT_SUFFIXES = {".svg", ".drawio", ".ai", ".eps"}
 EDIT_WORDS = ("edit", "revise", "modify", "修改", "编辑", "调整", "重绘", "补充")
 FLOW_WORDS = ("flow", "flows", "followed by", "then", "from", "to", "流向", "依次", "然后", "经过", "到")
@@ -30,6 +30,8 @@ RASTER_ILLUSTRATION_WORDS = (
     "photorealistic", "photo style", "photo-style", "3d", "three-dimensional",
     "照片风格", "照片级", "写实", "三维", "3d科研", "科研插画", "概念插画",
 )
+HYBRID_RASTER_WORDS = ("raster", "栅格", "video frame", "视频帧", "heatmap", "热力图", "photo", "image")
+HYBRID_VECTOR_WORDS = ("vector", "矢量", "module", "模块", "arrow", "箭头", "axis", "坐标轴", "bar chart", "柱状图")
 
 
 def data_files(inventory: dict) -> list[dict]:
@@ -45,6 +47,15 @@ def choose_route(inventory: dict, brief: str, explicit: str = "auto") -> str:
     has_context = bool(counts.get("narrative") or counts.get("raster") or counts.get("vector"))
     has_editable = any(path.suffix.lower() in EDIT_SUFFIXES for path in paths)
     wants_edit = any(word in brief.lower() for word in EDIT_WORDS)
+    wants_hybrid = (
+        "hybrid" in brief.lower() or "混合" in brief
+        or (
+            any(word in brief.lower() for word in HYBRID_RASTER_WORDS)
+            and any(word in brief.lower() for word in HYBRID_VECTOR_WORDS)
+        )
+    )
+    if wants_hybrid:
+        return "hybrid-composite"
     wants_raster_illustration = any(word in brief.lower() for word in RASTER_ILLUSTRATION_WORDS)
     if wants_raster_illustration and not has_data:
         return "raster-illustration"
@@ -266,6 +277,43 @@ def raster_illustration_panel(inventory: dict, brief: str, panel_id: str = "A") 
     }, questions
 
 
+def hybrid_composite_panel(inventory: dict, brief: str, panel_id: str = "A") -> tuple[dict, list[str]]:
+    lowered = brief.lower()
+    roles = []
+    if any(word in lowered for word in ("video frame", "视频帧")):
+        roles.append({"role": "video-frame-raster", "kind": "raster", "svg_tag": "image", "min_count": 1})
+    if any(word in lowered for word in ("heatmap", "热力图")):
+        roles.append({"role": "attention-heatmap-raster", "kind": "raster", "svg_tag": "image", "min_count": 1})
+    if any(word in lowered for word in ("transformer", "module", "模块", "架构")):
+        roles.append({"role": "transformer-module", "kind": "vector", "svg_tag": "rect", "min_count": 1})
+    if any(word in lowered for word in ("arrow", "箭头", "flow", "数据流")):
+        roles.append({"role": "data-flow-arrow", "kind": "vector", "svg_tag": "path", "min_count": 1})
+    if any(word in lowered for word in ("bar chart", "柱状图", "result", "结果图")):
+        roles.extend([
+            {"role": "result-bar", "kind": "vector", "svg_tag": "rect", "min_count": 1},
+            {"role": "axis", "kind": "vector", "svg_tag": "line", "min_count": 2},
+        ])
+    contract = {"roles": roles, "unclassified_image_policy": "forbid", "exact_visible_labels": True}
+    questions = [
+        "Confirm exact visible labels and normalized layout before rendering the hybrid Figure.",
+        "Set exact role counts and raster source_glob values in representation_contract before approval.",
+    ]
+    return {
+        "id": panel_id,
+        "title": "Hybrid scientific Figure",
+        "type": "hybrid-composite",
+        "source_files": [item.get("path") for item in inventory.get("files", [])],
+        "visual_form": "hybrid-raster-vector-composite",
+        "evidence_role": "review-required",
+        "visible_labels": [],
+        "annotation_spec": {"mode": "deterministic-overlay", "builder": "hybrid-composite"},
+        "representation_contract": contract,
+        "canvas": {"width": 2048, "height": 1280},
+        "backend": "custom hybrid SVG compositor plus audit_hybrid_svg.py",
+        "human_review_required": True,
+    }, questions
+
+
 def build_plan(
     inventory: dict, brief: str, explicit_route: str = "auto",
     edit_operations: list[dict[str, Any]] | None = None,
@@ -275,6 +323,7 @@ def build_plan(
         "data-plot": ["project-native plotting stack", "Python/Matplotlib"],
         "illustration": ["native SVG or draw.io", "PaperBanana-style pipeline", "image generator draft"],
         "raster-illustration": ["BYOK OpenAI-compatible Images API", "deterministic 3D renderer when available"],
+        "hybrid-composite": ["hybrid SVG compositor", "Draw.io for architecture", "audit_hybrid_svg.py"],
         "edit": ["native SVG editor or draw.io", "AutoFigure-Edit for raster-to-SVG reconstruction"],
         "composite": ["Python/Matplotlib for evidence panels", "SVG or draw.io for assembly"],
     }
@@ -292,6 +341,10 @@ def build_plan(
         raster_panel, raster_questions = raster_illustration_panel(inventory, brief, "A")
         panels.append(raster_panel)
         questions.extend(raster_questions)
+    if route == "hybrid-composite":
+        hybrid_panel, hybrid_questions = hybrid_composite_panel(inventory, brief, "A")
+        panels.append(hybrid_panel)
+        questions.extend(hybrid_questions)
     if route in {"data-plot", "composite"}:
         data_start = len(panels)
         generated, data_questions = data_panels(inventory, brief, data_start)
@@ -320,7 +373,7 @@ def build_plan(
                 "Define explicit edit operations before approval; supported SVG operations are replace_text and set_attribute."
             )
 
-    raster_route = route == "raster-illustration"
+    raster_route = route in {"raster-illustration", "hybrid-composite"}
     return {
         "schema_version": "1.1",
         "route": route,

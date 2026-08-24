@@ -32,7 +32,10 @@ def slug(value: str) -> str:
 
 
 def select_panel(plan: dict) -> dict:
-    panels = [panel for panel in plan.get("panels", []) if panel.get("type") == "raster-illustration"]
+    panels = [
+        panel for panel in plan.get("panels", [])
+        if panel.get("type") in {"raster-illustration", "hybrid-composite"}
+    ]
     if len(panels) != 1:
         raise ValueError("scientific raster review requires exactly one raster-illustration panel")
     return panels[0]
