@@ -98,9 +98,10 @@ def svg_doc(width: float, height: float, body: str, *, view_x: float = 0,
             view_y: float = 0, metadata: dict | None = None,
             physical_width_mm: float | None = None,
             physical_height_mm: float | None = None) -> str:
-    meta = ""
+    meta_line = ""
     if metadata:
         meta = f'<metadata id="provenance">{esc(json.dumps(metadata, ensure_ascii=False))}</metadata>'
+        meta_line = f"  {meta}\n"
     physical_width_mm = physical_width_mm if physical_width_mm is not None else width / 3.78
     physical_height_mm = physical_height_mm if physical_height_mm is not None else height / 3.78
     return f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -111,7 +112,7 @@ def svg_doc(width: float, height: float, body: str, *, view_x: float = 0,
       <path d="M0,0 L7,3.5 L0,7 Z" fill="{INK}"/>
     </marker>
   </defs>
-  {meta}
+{meta_line}\
   <rect x="{view_x}" y="{view_y}" width="{width}" height="{height}" fill="#FFFFFF" data-role="canvas"/>
   {body}
 </svg>
