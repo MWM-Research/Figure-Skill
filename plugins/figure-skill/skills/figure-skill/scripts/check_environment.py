@@ -91,6 +91,11 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
     credentials = {name: credential_status(name) for name in credential_names}
     paperbanana_available = bool(paperbanana_repo and (paperbanana_repo / "skill" / "run.py").is_file())
     autofigure_available = bool(autofigure_repo and (autofigure_repo / "autofigure2.py").is_file())
+    external_root = Path(os.environ.get("FIGURE_SKILL_EXTERNAL_ROOT", "")).expanduser() if os.environ.get("FIGURE_SKILL_EXTERNAL_ROOT") else Path(sys.executable).resolve().parent.parent / "external"
+    paper_python = external_root / "venvs" / "paperbanana" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    auto_python = external_root / "venvs" / "autofigure-edit" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    paperbanana_available = paperbanana_available and paper_python.is_file()
+    autofigure_available = autofigure_available and auto_python.is_file()
     core_ready = sys.version_info >= (3, 10) and matplotlib["available"] and openpyxl["available"] and bool(browser)
     return {
         "schema_version": "1.0",
@@ -111,11 +116,13 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
                 "available": paperbanana_available,
                 "status": "ready" if paperbanana_available else "optional-not-installed",
                 "path": str(paperbanana_repo.resolve()) if paperbanana_repo else None,
+                "python": str(paper_python) if paper_python.is_file() else None,
             },
             "autofigure_edit_repo": {
                 "available": autofigure_available,
                 "status": "ready" if autofigure_available else "optional-not-installed",
                 "path": str(autofigure_repo.resolve()) if autofigure_repo else None,
+                "python": str(auto_python) if auto_python.is_file() else None,
             },
             "ai_enhancement": {
                 "available": paperbanana_available or autofigure_available,
@@ -144,7 +151,10 @@ def main() -> int:
     parser.add_argument("--autofigure-repo", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    report = inspect(args.paperbanana_repo, args.autofigure_repo)
+    runtime_external = Path(os.environ.get("FIGURE_SKILL_EXTERNAL_ROOT", "")).expanduser() if os.environ.get("FIGURE_SKILL_EXTERNAL_ROOT") else Path(sys.executable).resolve().parent.parent / "external"
+    paperbanana_repo = args.paperbanana_repo or runtime_external / "upstreams" / "PaperBanana"
+    autofigure_repo = args.autofigure_repo or runtime_external / "upstreams" / "AutoFigure-Edit"
+    report = inspect(paperbanana_repo, autofigure_repo)
     text = json.dumps(report, ensure_ascii=False, indent=2)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -2,6 +2,22 @@
 
 Keep external generation isolated from the deterministic evidence pipeline. Never replace a data-driven panel with generated pixels.
 
+## Plugin-managed installation
+
+The Figure Skill Plugin includes `$paperbanana` and `$autofigure-edit` wrapper Skills plus a cross-platform Bootstrap. After explicit approval for the large download:
+
+```powershell
+python "<SKILL_ROOT>/scripts/figure.py" backends install --backend all
+```
+
+Inspect without changing state:
+
+```powershell
+python "<SKILL_ROOT>/scripts/figure.py" backends status
+```
+
+Pinned repositories and separate virtual environments are stored under `~/.codex/runtimes/figure-skill/<version>/external/`. Adapters discover these paths automatically. Keys remain separate and are never installed by the Plugin.
+
 ## BYOK raster illustration
 
 - Default base URL: `https://right.codes/codex/v1`
@@ -11,7 +27,7 @@ Keep external generation isolated from the deterministic evidence pipeline. Neve
 - The request manifest is prepared without the key. Execution requires an approved plan plus `--execute-raster --allow-network`.
 - The generated PNG is labeled illustrative and remains subject to mandatory human review.
 
-From the project root, `scripts/setup_external_backends.ps1` installs the two pinned upstream commits into `.external/upstreams`, creates separate virtual environments, runs `pip check`, and smoke-tests both CLIs. Use `-Recreate` to rebuild the environments without inherited system packages.
+For maintainer development only, project-root `scripts/setup_external_backends.ps1` can still install the same pinned commits under the checkout's `.external/` directory.
 
 ## draw.io
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "PaperBanana Backend"
+  short_description: "Generate reviewed scientific illustration candidates"
+  default_prompt: "Use $paperbanana through Figure Skill to prepare a reviewed conceptual scientific illustration candidate."

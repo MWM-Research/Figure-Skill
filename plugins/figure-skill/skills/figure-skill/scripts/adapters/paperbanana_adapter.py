@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from upstream_contract import inspect_contract
+from external_runtime import backend_paths
 
 
 REQUIRED_FLAGS = {
@@ -27,7 +28,10 @@ def select_panel(plan: dict, panel_id: str | None) -> dict:
     return panels[0]
 
 
-def prepare(plan: dict, panel: dict, output_dir: Path, repo: Path, candidates: int) -> dict:
+def prepare(
+    plan: dict, panel: dict, output_dir: Path, repo: Path, candidates: int,
+    backend_python: Path | None = None,
+) -> dict:
     contract = inspect_contract(repo, repo / "skill" / "run.py", REQUIRED_FLAGS)
     input_root = Path(plan.get("input_root") or ".").resolve()
     source_paths = [(input_root / source).resolve() for source in panel.get("source_files", [])]
@@ -42,7 +46,7 @@ def prepare(plan: dict, panel: dict, output_dir: Path, repo: Path, candidates: i
     content_file.write_text("\n\n".join(content_parts), encoding="utf-8")
     target = output_dir / f"panel_{str(panel['id']).lower()}_paperbanana.png"
     command = [
-        sys.executable, str((repo / "skill" / "run.py").resolve()),
+        str(backend_python or Path(sys.executable)), str((repo / "skill" / "run.py").resolve()),
         "--content-file", str(content_file.resolve()),
         "--caption", str(panel.get("title") or plan.get("brief") or "Scientific illustration"),
         "--task", "diagram", "--output", str(target.resolve()),
@@ -67,7 +71,7 @@ def prepare(plan: dict, panel: dict, output_dir: Path, repo: Path, candidates: i
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plan", type=Path)
-    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--repo", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--panel")
     parser.add_argument("--num-candidates", type=int, default=1)
@@ -75,13 +79,16 @@ def main() -> int:
     parser.add_argument("--allow-network", action="store_true")
     parser.add_argument("--allow-config-credentials", action="store_true")
     args = parser.parse_args()
-    if not (args.repo / "skill" / "run.py").is_file():
-        parser.error("PaperBanana repo must contain skill/run.py")
+    installed = backend_paths("paperbanana")
+    repo = (args.repo or installed["repo"]).resolve()
+    backend_python = installed["python"]
+    if not (repo / "skill" / "run.py").is_file() or not backend_python.is_file():
+        parser.error("PaperBanana backend is not installed; run figure.py backends install --backend paperbanana")
     if not 1 <= args.num_candidates <= 4:
         parser.error("--num-candidates must be between 1 and 4")
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     panel = select_panel(plan, args.panel)
-    request = prepare(plan, panel, args.output_dir.resolve(), args.repo.resolve(), args.num_candidates)
+    request = prepare(plan, panel, args.output_dir.resolve(), repo, args.num_candidates, backend_python)
     manifest = args.output_dir.resolve() / "paperbanana-request.json"
     manifest.write_text(json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8")
     if not args.execute:
@@ -92,7 +99,7 @@ def main() -> int:
     has_env_key = any(os.environ.get(name) for name in request["credential_environment"])
     if not has_env_key and not args.allow_config_credentials:
         raise SystemExit("No supported credential environment variable detected; config credentials require --allow-config-credentials")
-    result = subprocess.run(request["command"], cwd=args.repo.resolve())
+    result = subprocess.run(request["command"], cwd=repo)
     if result.returncode != 0:
         return result.returncode
     if not Path(request["expected_output"]).is_file():

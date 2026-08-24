@@ -8,8 +8,8 @@ This project orchestrates optional third-party tools but does not vendor their r
 | openpyxl | XLSX input | MIT |
 | pypdf | PDF checks | BSD-3-Clause |
 | draw.io MCP/plugin | Editable diagram handoff | Apache-2.0 |
-| `dwzhu-pku/PaperBanana` | Optional illustration backend | Apache-2.0; installed separately |
-| `ResearAI/AutoFigure-Edit` | Optional raster-to-SVG backend | MIT; installed separately |
+| `dwzhu-pku/PaperBanana` | Optional illustration backend | Apache-2.0; pinned source and dependencies downloaded on demand, not vendored |
+| `ResearAI/AutoFigure-Edit` | Optional raster-to-SVG backend | MIT; pinned source and dependencies downloaded on demand, not vendored |
 | `BAIKEMARK/happy-figure-skill` | Optional agent handoff | CC BY-NC-SA 4.0; not vendored and not assumed suitable for commercial use |
 
 Public acceptance evidence additionally uses:

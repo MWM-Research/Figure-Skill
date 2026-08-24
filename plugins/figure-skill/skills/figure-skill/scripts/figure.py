@@ -120,7 +120,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Bootstrap and run Figure Skill without depending on the current working directory."
     )
-    parser.add_argument("command", choices=("bootstrap", "doctor", "workflow", "qa", "review", "runtime-path"))
+    parser.add_argument("command", choices=("bootstrap", "backends", "doctor", "workflow", "qa", "review", "runtime-path"))
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if args.command == "bootstrap":
@@ -137,6 +137,7 @@ def main() -> int:
         "workflow": "run_workflow.py",
         "qa": "qa_figure.py",
         "review": "review_generated_figure.py",
+        "backends": "bootstrap_external_backends.py",
     }
     return run_tool(tools[args.command], args.arguments)
 

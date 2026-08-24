@@ -1,0 +1,4 @@
+interface:
+  display_name: "AutoFigure Edit"
+  short_description: "Reconstruct reviewed raster figures as editable SVG"
+  default_prompt: "Use $autofigure-edit through Figure Skill to reconstruct this reviewed raster draft as editable SVG."

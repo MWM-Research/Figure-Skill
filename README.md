@@ -2,9 +2,19 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.8.0`
+Current internal release: `v0.9.0`
 
 ## 团队安装
+
+完整一键安装（Plugin、核心运行环境、PaperBanana、AutoFigure-Edit）：
+
+```powershell
+git clone https://github.com/MWM-Research/Figure-Skill.git
+cd Figure-Skill
+.\scripts\install_team.ps1
+```
+
+该过程会下载两个固定版本的上游仓库及大型ML依赖，可能占用数GB磁盘；不会配置或保存API Key。只需要确定性核心时可使用 `./scripts/install_team.ps1 -SkipExternalBackends`。
 
 团队成员获得 `MWM-Research/Figure-Skill` 私有仓库权限后，只需：
 
@@ -19,7 +29,7 @@ codex plugin add figure-skill@mwm-research
 使用 $figure-skill 根据我的研究材料生成科研图。
 ```
 
-第一次执行时，插件会在用户的 Codex 目录下创建按版本隔离的 Python 环境并安装锁定依赖；不会修改成员自己的项目环境。后续调用直接复用该环境。基础绘图不要求配置 API Key，PaperBanana 和 AutoFigure-Edit 缺失时会显示为可选增强未启用。
+第一次执行时，插件会在用户的 Codex 目录下创建按版本隔离的Python环境；PaperBanana和AutoFigure-Edit使用各自独立环境，不会修改成员项目环境。基础绘图不要求API Key，外部后端即使未配置Provider也不会阻塞核心能力。
 
 更新 Marketplace：
 
@@ -39,6 +49,7 @@ codex plugin add figure-skill@mwm-research
 - 单面板、横向、纵向和 2 列网格组装
 - SVG、PDF、PNG 导出及结构/来源 QA
 - Happy Figure、PaperBanana、AutoFigure-Edit 的安全隔离适配器
+- Plugin同时安装 `$figure-skill`、`$paperbanana`、`$autofigure-edit`，并支持固定版本后端按需Bootstrap
 - 成员自带 Key 的照片风格、3D 风格和概念科研插画路线
 - 可审计的Hybrid Figure路由：按内容自动规划Raster/Vector角色，并从SVG源码、`data-role`和源文件哈希验证表达方式
 
@@ -129,7 +140,7 @@ python "$FigureSkill\scripts\figure.py" workflow `
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.8.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.9.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

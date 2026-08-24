@@ -2,6 +2,21 @@
 
 All notable project changes are recorded here.
 
+## 0.9.0 - 2026-08-24
+
+### Added
+
+- Added `$paperbanana` and `$autofigure-edit` wrapper Skills to the Figure Skill Plugin.
+- Added cross-platform, pinned, versioned, on-demand installation for both external backend repositories and isolated Python environments.
+- Added backend status discovery, concurrent-install locking, atomic setup reports, and automatic Adapter runtime resolution.
+- Added `scripts/install_team.ps1` for one-command Marketplace, Plugin, core runtime, and external backend setup.
+
+### Changed
+
+- External Adapters no longer require manually supplied repository paths after managed installation.
+- AutoFigure execution automatically relaunches inside its isolated environment without exposing the key on the process command line.
+- Plugin-only installations can now prepare both external backends instead of requiring a full development checkout.
+
 ## 0.8.0 - 2026-08-24
 
 ### Added

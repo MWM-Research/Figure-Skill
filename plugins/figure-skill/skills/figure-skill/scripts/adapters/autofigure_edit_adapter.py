@@ -7,10 +7,12 @@ import argparse
 import json
 import os
 import runpy
+import subprocess
 import sys
 from pathlib import Path
 
 from upstream_contract import inspect_contract
+from external_runtime import backend_paths
 
 
 KEY_ENV = {
@@ -55,6 +57,7 @@ def prepare(
     input_figure: Path | None, sam_backend: str,
     base_url: str | None = None, svg_model: str | None = None,
     optimize_iterations: int = 0,
+    backend_python: Path | None = None,
 ) -> dict:
     contract = inspect_contract(repo, repo / "autofigure2.py", REQUIRED_FLAGS)
     source_flag, source = select_source(plan, input_figure)
@@ -65,7 +68,7 @@ def prepare(
         if no_sam else (repo / "autofigure2.py").resolve()
     )
     public_command = [
-        sys.executable, str(execution_entrypoint),
+        str(backend_python or Path(sys.executable)), str(execution_entrypoint),
         f"--{source_flag}", str(source), "--output_dir", str(output_dir.resolve()),
         "--provider", provider, "--api_key", "<redacted-at-runtime>",
     ]
@@ -104,7 +107,7 @@ def prepare(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plan", type=Path)
-    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--repo", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--provider", choices=tuple(KEY_ENV), default="openai_response")
     parser.add_argument("--sam-backend", choices=("none", "local", "fal", "roboflow", "api"), help="Defaults to AUTOFIGURE_SAM_BACKEND or local")
@@ -115,9 +118,16 @@ def main() -> int:
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-network", action="store_true")
     args = parser.parse_args()
-    entrypoint = args.repo / "autofigure2.py"
-    if not entrypoint.is_file():
-        parser.error("AutoFigure-Edit repo must contain autofigure2.py")
+    installed = backend_paths("autofigure-edit")
+    repo = (args.repo or installed["repo"]).resolve()
+    backend_python = installed["python"]
+    entrypoint = repo / "autofigure2.py"
+    if not entrypoint.is_file() or not backend_python.is_file():
+        parser.error("AutoFigure-Edit backend is not installed; run figure.py backends install --backend autofigure-edit")
+    if args.execute and Path(sys.executable).resolve() != backend_python.resolve():
+        environment = os.environ.copy()
+        result = subprocess.run([str(backend_python), str(Path(__file__).resolve()), *sys.argv[1:]], env=environment)
+        return result.returncode
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     base_url = args.base_url or (os.environ.get("AUTOFIGURE_CUSTOM_BASE_URL") if args.provider == "custom" else None)
     svg_model = args.svg_model or os.environ.get("AUTOFIGURE_SVG_MODEL")
@@ -127,8 +137,8 @@ def main() -> int:
     if sam_backend not in {"none", "local", "fal", "roboflow", "api"}:
         parser.error(f"unsupported AUTOFIGURE_SAM_BACKEND: {sam_backend}")
     request = prepare(
-        plan, args.repo.resolve(), args.output_dir.resolve(), args.provider,
-        args.input_figure, sam_backend, base_url, svg_model, args.optimize_iterations,
+        plan, repo, args.output_dir.resolve(), args.provider,
+        args.input_figure, sam_backend, base_url, svg_model, args.optimize_iterations, backend_python,
     )
     manifest = args.output_dir.resolve() / "autofigure-edit-request.json"
     manifest.write_text(json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8")
