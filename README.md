@@ -4,6 +4,12 @@
 
 Current internal release: `v0.9.0`
 
+## 测试案例展示
+
+| 案例与验收结果 | 成图预览 |
+| --- | --- |
+| **[01 · StreamBridge++ CVPR Hybrid Figure](showcase/01-streambridge-cvpr-figure/)**<br><br>验证视频帧与 attention heatmap 使用 raster `<image>`，模型模块、箭头、文字、坐标轴和实验图标记使用矢量元素。<br><br>Hybrid 结构审计：`pass`<br>最终 QA：`pass`<br><br>[查看全部测试文件](showcase/) | <a href="showcase/01-streambridge-cvpr-figure/final/figure.png"><img src="showcase/01-streambridge-cvpr-figure/final/figure.png" alt="StreamBridge++ CVPR Figure" width="620"></a> |
+
 ## 团队安装
 
 完整一键安装（Plugin、核心运行环境、PaperBanana、AutoFigure-Edit）：
@@ -197,16 +203,6 @@ AUTOFIGURE_SVG_MODEL=<verified multimodal chat model>
 运行时选择 `--provider custom`。中转站模型必须支持图片输入、`max_tokens` 以及标准 Chat Completions `choices`；仅能文本对话的模型不能用于 SVG 重建。
 
 完全不使用付费分割服务时，将 `AUTOFIGURE_SAM_BACKEND` 设为 `none`。该模式跳过图标抠取，直接使用多模态模型进行纯 SVG 重建，适合流程图、架构图和文本框图；复杂插画的还原质量会低于 SAM 分割路线。
-
-## 测试案例展示
-
-[`showcase/`](showcase/) 保存已经完成的人工测试案例。每个案例尽量保留最终 PNG/SVG/PDF、输入素材、复现脚本、provenance 与 QA 报告，用于直观展示 Figure Skill 的实际能力和验收边界。
-
-当前案例：
-
-- [01 · StreamBridge++ CVPR Hybrid Figure](showcase/01-streambridge-cvpr-figure/)：验证视频帧与 attention heatmap 使用 raster `<image>`，模型模块、箭头、文字、坐标轴和实验图标记使用矢量元素；Hybrid 结构审计和最终 QA 均为 `pass`。
-
-![StreamBridge++ CVPR Figure](showcase/01-streambridge-cvpr-figure/final/figure.png)
 
 ## 公开验收
 
