@@ -5,7 +5,7 @@ Store plans as JSON with schema version `1.1`:
 ```json
 {
   "schema_version": "1.1",
-  "route": "data-plot | illustration | edit | composite",
+  "route": "data-plot | illustration | raster-illustration | edit | composite",
   "route_source": "user | inferred",
   "brief": "What the figure must communicate",
   "input_root": "absolute input directory",
@@ -57,6 +57,29 @@ Use an illustration panel like:
   "inference_requires_review": true
 }
 ```
+
+Use a generated raster illustration panel only for explicitly illustrative output:
+
+```json
+{
+  "id": "A",
+  "title": "3D method concept",
+  "type": "raster-illustration",
+  "style": "3d-render",
+  "evidence_role": "illustrative",
+  "scientific_description": "The encoder flows to retrieval and then to the classifier.",
+  "entities": ["Encoder", "Retrieval", "Classifier"],
+  "edges": [
+    {"from": "Encoder", "to": "Retrieval", "meaning": "data-flow", "inferred": true}
+  ],
+  "visible_labels": [],
+  "forbidden_content": ["invented measurements", "watermarks"],
+  "backend": "byok-openai-compatible-images",
+  "human_review_required": true
+}
+```
+
+For this route, set `editable_source_required` to `false`, set `generated_content_must_be_labeled` to `true`, and require PNG, generation provenance, and QA outputs rather than claiming an editable vector source.
 
 Use an edit panel only with explicit, reviewable operations:
 

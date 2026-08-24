@@ -169,14 +169,40 @@ def verify_edit_provenance(path: Path) -> list[dict]:
         return [check("edit-provenance-readable", "fail", file=str(path), detail=str(exc))]
 
 
+def verify_generation_provenance(path: Path) -> list[dict]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        output = Path(str(data.get("output", "")))
+        valid_output = output.is_file() and data.get("output_sha256") == sha256(output)
+        labeled = data.get("generated_content") is True and data.get("evidence_role") == "illustrative"
+        review_required = data.get("human_review_required") is True
+        return [
+            check("generation-provenance-readable", "pass", file=str(path)),
+            check("generation-output-hash", "pass" if valid_output else "fail", output=str(output)),
+            check("generated-content-labeled", "pass" if labeled else "fail"),
+            check("generation-human-review-required", "pass" if review_required else "fail"),
+        ]
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        return [check("generation-provenance-readable", "fail", file=str(path), detail=str(exc))]
+
+
 def run_qa(target: Path, plan: dict | None) -> dict:
     files = [target] if target.is_file() else sorted(path for path in target.rglob("*") if path.is_file())
     suffixes = {path.suffix.lower() for path in files}
+    raster_route = bool(plan and plan.get("route") == "raster-illustration")
     checks = [
         check("target-has-files", "pass" if files else "fail"),
         check("files-nonempty", "pass" if files and all(path.stat().st_size > 0 for path in files) else "fail"),
-        check("editable-source-present", "pass" if suffixes & EDITABLE else "fail"),
-        check("vector-export-present", "pass" if suffixes & {".svg", ".pdf", ".eps"} else "fail"),
+        check(
+            "editable-source-present",
+            "pass" if raster_route or suffixes & EDITABLE else "fail",
+            detail="not required for an explicitly generated raster illustration" if raster_route else "required",
+        ),
+        check(
+            "vector-export-present",
+            "pass" if raster_route or suffixes & {".svg", ".pdf", ".eps"} else "fail",
+            detail="not required for raster-illustration route" if raster_route else "required",
+        ),
         check("preview-present", "pass" if ".png" in suffixes else "warn"),
     ]
     for path in files:
@@ -195,11 +221,17 @@ def run_qa(target: Path, plan: dict | None) -> dict:
         checks.append(check("plan-open-questions-resolved", "pass" if not plan.get("open_questions") else "warn"))
         review_status = plan.get("review_status")
         checks.append(check("plan-reviewed", "pass" if review_status == "approved" else "warn", value=review_status))
-        planned_ids = [str(panel.get("id", "")).lower() for panel in plan.get("panels", [])]
-        missing_panels = [panel_id for panel_id in planned_ids if not any(path.name.lower() == f"panel_{panel_id}.svg" for path in files)]
+        planned = [
+            (str(panel.get("id", "")).lower(), ".png" if panel.get("type") == "raster-illustration" else ".svg")
+            for panel in plan.get("panels", [])
+        ]
+        missing_panels = [
+            panel_id for panel_id, suffix in planned
+            if not any(path.name.lower() == f"panel_{panel_id}{suffix}" for path in files)
+        ]
         checks.append(check(
             "planned-panels-present", "fail" if missing_panels else "pass",
-            detail=f"missing: {', '.join(missing_panels)}" if missing_panels else f"found {len(planned_ids)} panel(s)",
+            detail=f"missing: {', '.join(missing_panels)}" if missing_panels else f"found {len(planned)} panel(s)",
         ))
         has_data_panels = any(panel.get("type") == "data-plot" for panel in plan.get("panels", []))
         if has_data_panels:
@@ -214,6 +246,14 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             checks.append(check("edit-provenance-present", "pass" if edit_files else "fail"))
             for path in edit_files:
                 checks.extend(verify_edit_provenance(path))
+        has_raster_panels = any(panel.get("type") == "raster-illustration" for panel in plan.get("panels", []))
+        if has_raster_panels:
+            generation_files = [path for path in files if path.name == "generation-provenance.json"]
+            request_files = [path for path in files if path.name == "raster-illustration-request.json"]
+            checks.append(check("generation-provenance-present", "pass" if generation_files else "fail"))
+            checks.append(check("generation-request-present", "pass" if request_files else "fail"))
+            for path in generation_files:
+                checks.extend(verify_generation_provenance(path))
 
     status = "fail" if any(item["status"] == "fail" for item in checks) else (
         "warn" if any(item["status"] == "warn" for item in checks) else "pass"

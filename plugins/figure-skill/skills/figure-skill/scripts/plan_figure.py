@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 
-ROUTES = ("illustration", "data-plot", "edit", "composite")
+ROUTES = ("illustration", "raster-illustration", "data-plot", "edit", "composite")
 EDIT_SUFFIXES = {".svg", ".drawio", ".ai", ".eps"}
 EDIT_WORDS = ("edit", "revise", "modify", "修改", "编辑", "调整", "重绘", "补充")
 FLOW_WORDS = ("flow", "flows", "followed by", "then", "from", "to", "流向", "依次", "然后", "经过", "到")
@@ -25,6 +25,10 @@ ENTITY_TERMS = (
 METRIC_PRIORITY = (
     "accuracy", "acc", "f1", "precision", "recall", "auc", "score", "performance",
     "throughput", "latency", "time", "memory", "loss", "error",
+)
+RASTER_ILLUSTRATION_WORDS = (
+    "photorealistic", "photo style", "photo-style", "3d", "three-dimensional",
+    "照片风格", "照片级", "写实", "三维", "3d科研", "科研插画", "概念插画",
 )
 
 
@@ -41,6 +45,9 @@ def choose_route(inventory: dict, brief: str, explicit: str = "auto") -> str:
     has_context = bool(counts.get("narrative") or counts.get("raster") or counts.get("vector"))
     has_editable = any(path.suffix.lower() in EDIT_SUFFIXES for path in paths)
     wants_edit = any(word in brief.lower() for word in EDIT_WORDS)
+    wants_raster_illustration = any(word in brief.lower() for word in RASTER_ILLUSTRATION_WORDS)
+    if wants_raster_illustration and not has_data:
+        return "raster-illustration"
     if has_data and has_context:
         return "composite"
     if has_data:
@@ -190,6 +197,54 @@ def illustration_panel(inventory: dict, panel_id: str = "A") -> tuple[dict | Non
     }, questions
 
 
+def raster_illustration_panel(inventory: dict, brief: str, panel_id: str = "A") -> tuple[dict, list[str]]:
+    narratives = [item for item in inventory.get("files", []) if item.get("text_preview")]
+    source = narratives[0] if narratives else None
+    text = str(source.get("text_preview", "")) if source else ""
+    entities = extract_entities(text)
+    has_flow_evidence = any(word in text.lower() for word in FLOW_WORDS)
+    edges = [
+        {"from": left, "to": right, "meaning": "data-flow", "inferred": True}
+        for left, right in zip(entities, entities[1:])
+    ] if has_flow_evidence and len(entities) >= 2 else []
+    lowered = brief.lower()
+    style = "3d-render" if any(word in lowered for word in ("3d", "three-dimensional", "三维")) else (
+        "photorealistic" if any(word in lowered for word in ("photorealistic", "photo", "照片", "写实"))
+        else "scientific-concept-art"
+    )
+    questions = []
+    if not source:
+        questions.append(f"Provide reviewed methods text for raster illustration panel {panel_id}.")
+    if not entities:
+        questions.append(f"Confirm the scientific entities that must appear in raster illustration panel {panel_id}.")
+    if len(entities) >= 2 and not edges:
+        questions.append(
+            f"Confirm the spatial or directional relationships for raster illustration panel {panel_id}; "
+            "no explicit flow statement was found."
+        )
+    return {
+        "id": panel_id,
+        "title": "Generated scientific illustration",
+        "type": "raster-illustration",
+        "source_files": [source.get("path")] if source else [],
+        "visual_form": "generated-raster",
+        "style": style,
+        "evidence_role": "illustrative",
+        "scientific_description": text[:1500],
+        "entities": entities,
+        "edges": edges,
+        "visible_labels": [],
+        "forbidden_content": [
+            "invented measurements or statistics",
+            "unapproved labels",
+            "watermarks",
+            "presentation as microscopy, medical, field, or instrument evidence",
+        ],
+        "backend": "byok-openai-compatible-images",
+        "human_review_required": True,
+    }, questions
+
+
 def build_plan(
     inventory: dict, brief: str, explicit_route: str = "auto",
     edit_operations: list[dict[str, Any]] | None = None,
@@ -198,6 +253,7 @@ def build_plan(
     backend_map = {
         "data-plot": ["project-native plotting stack", "Python/Matplotlib"],
         "illustration": ["native SVG or draw.io", "PaperBanana-style pipeline", "image generator draft"],
+        "raster-illustration": ["BYOK OpenAI-compatible Images API", "deterministic 3D renderer when available"],
         "edit": ["native SVG editor or draw.io", "AutoFigure-Edit for raster-to-SVG reconstruction"],
         "composite": ["Python/Matplotlib for evidence panels", "SVG or draw.io for assembly"],
     }
@@ -211,6 +267,10 @@ def build_plan(
         if illustration:
             panels.append(illustration)
         questions.extend(illustration_questions)
+    if route == "raster-illustration":
+        raster_panel, raster_questions = raster_illustration_panel(inventory, brief, "A")
+        panels.append(raster_panel)
+        questions.extend(raster_questions)
     if route in {"data-plot", "composite"}:
         data_start = len(panels)
         generated, data_questions = data_panels(inventory, brief, data_start)
@@ -239,6 +299,7 @@ def build_plan(
                 "Define explicit edit operations before approval; supported SVG operations are replace_text and set_attribute."
             )
 
+    raster_route = route == "raster-illustration"
     return {
         "schema_version": "1.1",
         "route": route,
@@ -250,10 +311,14 @@ def build_plan(
         "constraints": {
             "evidence_only": True,
             "forbid_invented_quantitative_claims": True,
-            "editable_source_required": True,
+            "editable_source_required": not raster_route,
+            "generated_content_must_be_labeled": raster_route,
         },
         "recommended_backends": backend_map[route],
-        "required_outputs": ["editable-source", "svg", "pdf", "png", "provenance"],
+        "required_outputs": (
+            ["png", "generation-provenance", "qa-report"] if raster_route
+            else ["editable-source", "svg", "pdf", "png", "provenance"]
+        ),
         "review_status": "draft",
         "open_questions": list(dict.fromkeys(questions)),
     }

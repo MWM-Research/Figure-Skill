@@ -1,7 +1,7 @@
 {
   "name": "figure-skill",
-  "version": "0.4.0",
-  "description": "Evidence-aware scientific figure generation, editing, provenance, and QA for Codex.",
+  "version": "0.5.0",
+  "description": "Evidence-aware vector and generated raster scientific figures, editing, provenance, and QA for Codex.",
   "author": {
     "name": "MWM-Research",
     "url": "https://github.com/MWM-Research"
@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "Figure Skill",
     "shortDescription": "Generate, edit, trace, and QA scientific figures.",
-    "longDescription": "Turn research text, experiment data, and existing figures into editable SVG, draw.io, PDF, and PNG outputs with human review, provenance, and structural QA.",
+    "longDescription": "Turn research text, experiment data, and existing figures into editable vector outputs or reviewed generated raster illustrations with provenance and structural QA.",
     "developerName": "MWM-Research",
     "category": "Education & Research",
     "capabilities": ["Interactive", "Write"],

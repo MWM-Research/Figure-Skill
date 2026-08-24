@@ -2,6 +2,20 @@
 
 All notable project changes are recorded here.
 
+## 0.5.0 - 2026-08-24
+
+### Added
+
+- Added a reviewed `raster-illustration` route for photorealistic concepts and 3D-style scientific illustrations.
+- Added a BYOK OpenAI-compatible Images adapter with redacted manifests, base64/HTTPS output handling, image validation, and generation provenance.
+- Added secure interactive Windows configuration for each member's `FIGURE_IMAGE_API_KEY`.
+- Added raster-specific QA and simulated HTTP generation tests.
+
+### Changed
+
+- Team defaults now target `https://right.codes/codex/v1` with `gpt-image-2`; members can override the public endpoint and model locally.
+- Generated raster outputs are explicitly labeled illustrative and remain awaiting mandatory human review.
+
 ## 0.4.0 - 2026-08-23
 
 ### Added

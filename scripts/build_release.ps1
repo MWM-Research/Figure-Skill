@@ -94,6 +94,8 @@ try {
         "plugins/figure-skill/skills/figure-skill/requirements-lock.txt",
         "plugins/figure-skill/skills/figure-skill/scripts/figure.py",
         "plugins/figure-skill/skills/figure-skill/scripts/figure.ps1",
+        "plugins/figure-skill/skills/figure-skill/scripts/adapters/raster_illustration_adapter.py",
+        "plugins/figure-skill/skills/figure-skill/scripts/configure_image_key.ps1",
         "scripts/verify_release.ps1",
         "release-manifest.json"
     )) {

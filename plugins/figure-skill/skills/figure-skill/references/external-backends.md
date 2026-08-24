@@ -2,6 +2,15 @@
 
 Keep external generation isolated from the deterministic evidence pipeline. Never replace a data-driven panel with generated pixels.
 
+## BYOK raster illustration
+
+- Default base URL: `https://right.codes/codex/v1`
+- Default model: `gpt-image-2`
+- Credential: member-local `FIGURE_IMAGE_API_KEY`
+- Protocol: `POST <base-url>/images/generations`
+- The request manifest is prepared without the key. Execution requires an approved plan plus `--execute-raster --allow-network`.
+- The generated PNG is labeled illustrative and remains subject to mandatory human review.
+
 From the project root, `scripts/setup_external_backends.ps1` installs the two pinned upstream commits into `.external/upstreams`, creates separate virtual environments, runs `pip check`, and smoke-tests both CLIs. Use `-Recreate` to rebuild the environments without inherited system packages.
 
 ## draw.io

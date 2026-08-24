@@ -94,6 +94,12 @@ def main() -> int:
     parser.add_argument("--stop-after-plan", action="store_true")
     parser.add_argument("--approve-plan", action="store_true", help="Confirm that the plan and inferred relationships were reviewed")
     parser.add_argument("--force", action="store_true", help="Allow overwriting files in the selected output directory")
+    parser.add_argument("--execute-raster", action="store_true", help="Execute an approved BYOK raster-illustration request")
+    parser.add_argument("--allow-network", action="store_true", help="Authorize the selected external generation request")
+    parser.add_argument("--image-base-url", help="OpenAI-compatible base URL; defaults to FIGURE_IMAGE_BASE_URL")
+    parser.add_argument("--image-model", help="Image generation model; defaults to FIGURE_IMAGE_MODEL")
+    parser.add_argument("--image-size", default="1024x1024")
+    parser.add_argument("--image-quality", default="medium")
     args = parser.parse_args()
 
     if args.input and not args.input.is_dir():
@@ -125,6 +131,39 @@ def main() -> int:
         directory.mkdir(parents=True, exist_ok=True)
 
     panel_types = {panel.get("type") for panel in plan.get("panels", [])}
+    if "raster-illustration" in panel_types:
+        command = [
+            sys.executable, str(HERE / "adapters" / "raster_illustration_adapter.py"), str(plan_path),
+            "--output-dir", str(panels_dir), "--size", args.image_size, "--quality", args.image_quality,
+        ]
+        if args.image_base_url:
+            command.extend(["--base-url", args.image_base_url])
+        if args.image_model:
+            command.extend(["--model", args.image_model])
+        if args.execute_raster:
+            if not args.allow_network:
+                parser.error("--execute-raster requires --allow-network")
+            command.extend(["--execute", "--allow-network"])
+        run_checked(command)
+        request_manifest = panels_dir / "raster-illustration-request.json"
+        if request_manifest.is_file():
+            shutil.move(str(request_manifest), sources_dir / request_manifest.name)
+        if not args.execute_raster:
+            print(f"Raster illustration request prepared for review -> {sources_dir}")
+            return 0
+        generation_provenance = panels_dir / "generation-provenance.json"
+        if generation_provenance.is_file():
+            shutil.move(str(generation_provenance), provenance_dir / generation_provenance.name)
+        raster_panels = sorted(panels_dir.glob("panel_*.png"))
+        if len(raster_panels) != 1:
+            raise RuntimeError("raster-illustration route expected exactly one generated panel PNG")
+        shutil.copy2(raster_panels[0], final_dir / "figure.png")
+        run_checked([
+            sys.executable, str(HERE / "qa_figure.py"), str(output),
+            "--plan", str(plan_path), "--output", str(reports_dir / "qa-report.json"),
+        ])
+        print(f"Raster illustration generated for mandatory human review -> {output}")
+        return 0
     if "illustration" in panel_types:
         run_checked([
             sys.executable, str(HERE / "backends" / "svg_diagram_backend.py"), str(plan_path),

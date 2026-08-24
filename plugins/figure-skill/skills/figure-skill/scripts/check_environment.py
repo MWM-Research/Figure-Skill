@@ -86,6 +86,7 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
     credential_names = (
         "OPENAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY", "OPENROUTER_API_KEY",
         "BIANXIE_API_KEY", "AUTOFIGURE_API_KEY", "FAL_KEY", "ROBOFLOW_API_KEY",
+        "FIGURE_IMAGE_API_KEY",
     )
     credentials = {name: credential_status(name) for name in credential_names}
     paperbanana_available = bool(paperbanana_repo and (paperbanana_repo / "skill" / "run.py").is_file())
@@ -119,6 +120,14 @@ def inspect(paperbanana_repo: Path | None, autofigure_repo: Path | None) -> dict
             "ai_enhancement": {
                 "available": paperbanana_available or autofigure_available,
                 "status": "ready" if (paperbanana_available or autofigure_available) else "optional-disabled",
+                "blocks_core_workflow": False,
+            },
+            "byok_raster_illustration": {
+                "available": credentials["FIGURE_IMAGE_API_KEY"]["available"],
+                "status": "ready" if credentials["FIGURE_IMAGE_API_KEY"]["available"] else "optional-not-configured",
+                "required_environment": ["FIGURE_IMAGE_API_KEY"],
+                "optional_overrides": ["FIGURE_IMAGE_BASE_URL", "FIGURE_IMAGE_MODEL"],
+                "default_protocol": "openai-compatible-images",
                 "blocks_core_workflow": False,
             },
             "credential_presence": {

@@ -1,6 +1,6 @@
 ---
 name: figure-skill
-description: Route research manuscripts, methods, captions, reference figures, and experiment outputs into reproducible scientific illustration, data-plot, figure-editing, and composite workflows. Use when Codex needs to plan, generate, edit, or quality-check publication figures; create architecture, mechanism, workflow, graphical-abstract, ablation, robustness, or multi-panel figures; or coordinate tools such as PaperBanana, AutoFigure-Edit, Matplotlib, draw.io, and image generation while preserving scientific evidence boundaries.
+description: Route research manuscripts, methods, captions, reference figures, and experiment outputs into reproducible scientific illustration, generated raster illustration, data-plot, figure-editing, and composite workflows. Use when Codex needs to plan, generate, edit, or quality-check publication figures; create architecture, mechanism, workflow, graphical-abstract, photorealistic concept, 3D-style illustration, ablation, robustness, or multi-panel figures; or coordinate PaperBanana, AutoFigure-Edit, Matplotlib, draw.io, and image generation while preserving scientific evidence boundaries.
 ---
 
 # Figure Skill
@@ -46,6 +46,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 4. Confirm that the inferred route matches the evidence:
    - Use `data-plot` for CSV, TSV, JSON measurements, logs, metrics, statistics, and quantitative comparisons.
    - Use `illustration` for methods, architectures, mechanisms, workflows, and graphical abstracts without quantitative claims.
+   - Use `raster-illustration` for explicitly generated photorealistic concepts, 3D-style scientific scenes, graphical abstracts, or cover art. Read [references/raster-illustration.md](references/raster-illustration.md) before planning or executing this route.
    - Use `edit` when the primary job is revising an existing SVG, draw.io file, or supplied figure.
    - Use `composite` when a figure combines evidence-backed plots with explanatory illustration panels.
    - Read [references/routes.md](references/routes.md) when choosing or combining backends.
@@ -92,6 +93,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 - Read [references/external-backends.md](references/external-backends.md) before preparing or executing draw.io, Happy Figure, PaperBanana, or AutoFigure-Edit requests.
 - Read [references/backend-selection.md](references/backend-selection.md) before adding or replacing an external backend; it records the reviewed alternatives, licenses, and unavailable links from the team list.
 - PaperBanana and AutoFigure-Edit are optional AI enhancements and are not installed during core bootstrap. If they are absent, use deterministic plotting, SVG diagrams, native SVG editing, assembly, provenance, and QA without requesting an API key.
+- The BYOK raster route uses the member's `FIGURE_IMAGE_API_KEY`, never a repository credential. Prepare a redacted request first and require `--execute-raster --allow-network` after plan approval. API completion remains `generated-awaiting-human-review` until visual scientific review.
 - Only from a full project checkout, `scripts/setup_external_backends.ps1` can create fixed-version, isolated PaperBanana and AutoFigure-Edit runtimes. Plugin-only installations intentionally do not fetch third-party repositories.
 - Do not install, authenticate, upload unpublished material, or call paid services without user authorization.
 - Keep API keys outside plans, prompts, logs, and generated artifacts.

@@ -2,7 +2,7 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.4.0`
+Current internal release: `v0.5.0`
 
 ## 团队安装
 
@@ -39,6 +39,25 @@ codex plugin add figure-skill@mwm-research
 - 单面板、横向、纵向和 2 列网格组装
 - SVG、PDF、PNG 导出及结构/来源 QA
 - Happy Figure、PaperBanana、AutoFigure-Edit 的安全隔离适配器
+- 成员自带 Key 的照片风格、3D 风格和概念科研插画路线
+
+## 照片风格与 3D 科研插画
+
+团队默认使用 OpenAI 兼容地址 `https://right.codes/codex/v1` 和模型 `gpt-image-2`。每位成员只配置自己的 Key；Key 不进入仓库、计划、提示词、请求清单或 QA 报告。
+
+Windows 成员在完整仓库中可交互运行：
+
+```powershell
+& .\plugins\figure-skill\skills\figure-skill\scripts\configure_image_key.ps1
+```
+
+配置后新建 Codex 任务，并使用：
+
+```text
+使用 $figure-skill 根据 methods.md 生成一张 3D 风格科研概念插画。
+```
+
+Skill 会先停在计划审核阶段；批准后才会在显式联网授权下生成。API 返回成功只表示获得候选图，最终仍必须完成人工科研一致性检查。
 
 ## 快速开始
 
@@ -109,7 +128,7 @@ python "$FigureSkill\scripts\figure.py" workflow `
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.4.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.5.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

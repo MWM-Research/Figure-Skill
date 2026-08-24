@@ -20,6 +20,16 @@ Choose for model architecture, method pipeline, mechanism, experimental setup sc
 - Record every scientific entity and arrow in the brief before rendering.
 - Current deterministic backend: `scripts/backends/svg_diagram_backend.py` for editable architecture and workflow diagrams.
 
+## Raster illustration
+
+Choose only for explicitly generated conceptual imagery: photorealistic scientific concepts, 3D-style scenes, graphical abstracts, or cover art.
+
+- Mark the evidence role as `illustrative` and require human review.
+- Record entities, relationships, visible labels, forbidden content, model, endpoint, prompt hash, and output hash.
+- Use the member's `FIGURE_IMAGE_API_KEY`; do not persist or log it.
+- Do not use generated imagery as microscopy, medical, field, instrument, or quantitative evidence.
+- Current backend: `scripts/adapters/raster_illustration_adapter.py` using an OpenAI-compatible Images protocol.
+
 ## Edit
 
 Choose when an existing figure is the authoritative starting point.
