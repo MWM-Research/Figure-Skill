@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "title": "StreamBridge++ CVPR Figure",
+  "route": "composite",
+  "representation_mode": "hybrid-composite",
+  "status": "approved",
+  "review_status": "approved",
+  "approval_basis": "User-approved implementation plan in the Codex task",
+  "canvas": {
+    "width_mm": 177.8,
+    "height_mm": 116.8,
+    "viewBox": [
+      0,
+      0,
+      672,
+      442
+    ]
+  },
+  "layout": "full-width pipeline above three evidence panels; derived from content density",
+  "panels": [
+    {
+      "id": "a",
+      "title": "Streaming architecture",
+      "type": "illustration"
+    },
+    {
+      "id": "b",
+      "title": "Attention allocation",
+      "type": "illustration"
+    },
+    {
+      "id": "c",
+      "title": "Main comparison",
+      "type": "data-plot"
+    },
+    {
+      "id": "d",
+      "title": "Ablation",
+      "type": "data-plot"
+    }
+  ],
+  "representation_contract": {
+    "roles": [
+      {
+        "role": "video-frame-raster",
+        "kind": "raster",
+        "svg_tag": "image",
+        "expected_count": 4,
+        "source_glob": "sources/assets/frame_*.png"
+      },
+      {
+        "role": "attention-heatmap-raster",
+        "kind": "raster",
+        "svg_tag": "image",
+        "expected_count": 2,
+        "source_glob": "sources/assets/attention_*.png"
+      },
+      {
+        "role": "transformer-module",
+        "kind": "vector",
+        "svg_tag": "rect",
+        "expected_count": 4
+      },
+      {
+        "role": "data-flow-arrow",
+        "kind": "vector",
+        "svg_tag": "path",
+        "min_count": 7
+      },
+      {
+        "role": "main-result-mark",
+        "kind": "vector",
+        "svg_tag": "circle",
+        "expected_count": 15
+      },
+      {
+        "role": "ablation-result-bar",
+        "kind": "vector",
+        "svg_tag": "rect",
+        "expected_count": 4
+      },
+      {
+        "role": "axis",
+        "kind": "vector",
+        "svg_tag": "line",
+        "min_count": 10
+      },
+      {
+        "role": "label",
+        "kind": "vector",
+        "svg_tag": "text",
+        "min_count": 1
+      }
+    ],
+    "unclassified_image_policy": "forbid",
+    "exact_visible_labels": true
+  },
+  "visible_labels": [
+    "(a)",
+    "(b)",
+    "(c)",
+    "(d)",
+    "+ Cross-modal",
+    "+ Event-aware",
+    "+ Memory",
+    "119",
+    "128",
+    "151",
+    "169",
+    "182",
+    "248",
+    "291",
+    "338",
+    "365",
+    "412",
+    "60",
+    "61.8",
+    "65.1",
+    "66.8",
+    "67.4",
+    "69.9",
+    "70.2",
+    "71.8",
+    "73.6",
+    "75",
+    "Ablation",
+    "Accuracy ↑",
+    "All values shown exactly as provided",
+    "Attention allocation",
+    "Baseline",
+    "Block",
+    "Compression",
+    "Compressor",
+    "Cross-modal Memory",
+    "Event-aware compression",
+    "FLOPs ↓",
+    "Head",
+    "InternVideo2",
+    "LLM",
+    "Latency ↓",
+    "LongVA",
+    "Main comparison",
+    "Memory",
+    "Memory Compressor",
+    "Raster heatmaps; vector labels and axes",
+    "Response",
+    "StreamBridge",
+    "StreamBridge++",
+    "Streaming architecture",
+    "Streaming video",
+    "User instruction",
+    "Video Encoder",
+    "Video-LLaVA",
+    "adaptive merge",
+    "compressed",
+    "context",
+    "frame-level",
+    "preserve events",
+    "redundant tokens merge; salient events persist",
+    "retrieve historical",
+    "stream-aware",
+    "t",
+    "t−1",
+    "t−2",
+    "t−3",
+    "visual memory",
+    "visual tokens"
+  ],
+  "open_questions": [],
+  "constraints": {
+    "forbid_invented_quantitative_claims": true
+  },
+  "data_policy": "identity values only; no invented units, uncertainty, or significance"
+}

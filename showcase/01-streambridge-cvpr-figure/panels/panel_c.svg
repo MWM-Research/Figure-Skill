@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="74.07407407407408mm" height="59.523809523809526mm" viewBox="0 0 280 225">
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#1F2937"/>
+    </marker>
+  </defs>
+  
+  <rect x="0" y="0" width="280" height="225" fill="#FFFFFF" data-role="canvas"/>
+  <rect x="0" y="0" width="280" height="225" rx="7" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.1" data-role="panel-border" />
+<text x="9" y="17" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="700" fill="#1F2937" text-anchor="start" data-role="label">(c)</text>
+<text x="32" y="17" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="700" fill="#1F2937" text-anchor="start" data-role="label">Main comparison</text>
+<rect x="3" y="155" width="274" height="26" rx="3" fill="#EFF6FF" stroke="#2563EB" stroke-width="0.8" data-role="method-highlight" />
+<text x="103" y="43" font-family="Arial, Helvetica, sans-serif" font-size="9.1" font-weight="700" fill="#1F2937" text-anchor="middle" data-role="label">Accuracy ↑</text>
+<line x1="76" y1="51" x2="130" y2="51" stroke="#94A3B8" stroke-width="0.8" data-role="axis"/>
+<text x="172" y="43" font-family="Arial, Helvetica, sans-serif" font-size="9.1" font-weight="700" fill="#1F2937" text-anchor="middle" data-role="label">FLOPs ↓</text>
+<line x1="145" y1="51" x2="199" y2="51" stroke="#94A3B8" stroke-width="0.8" data-role="axis"/>
+<text x="241" y="43" font-family="Arial, Helvetica, sans-serif" font-size="9.1" font-weight="700" fill="#1F2937" text-anchor="middle" data-role="label">Latency ↓</text>
+<line x1="214" y1="51" x2="268" y2="51" stroke="#94A3B8" stroke-width="0.8" data-role="axis"/>
+<text x="7" y="68" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="400" fill="#1F2937" text-anchor="start" data-role="label">Video-LLaVA</text>
+<text x="7" y="94" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="400" fill="#1F2937" text-anchor="start" data-role="label">InternVideo2</text>
+<text x="7" y="120" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="400" fill="#1F2937" text-anchor="start" data-role="label">LongVA</text>
+<text x="7" y="146" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="400" fill="#1F2937" text-anchor="start" data-role="label">StreamBridge</text>
+<text x="7" y="172" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="700" fill="#1D4ED8" text-anchor="start" data-role="label">StreamBridge++</text>
+<line x1="79" y1="65" x2="110" y2="65" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="79.00" cy="65" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="129" y="68" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">61.8</text>
+<line x1="79" y1="91" x2="110" y2="91" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="87.67" cy="91" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="129" y="94" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">65.1</text>
+<line x1="79" y1="117" x2="110" y2="117" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="93.71" cy="117" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="129" y="120" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">67.4</text>
+<line x1="79" y1="143" x2="110" y2="143" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="101.07" cy="143" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="129" y="146" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">70.2</text>
+<line x1="79" y1="169" x2="110" y2="169" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="110.00" cy="169" r="3.5" fill="#2563EB" stroke="#1D4ED8" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="129" y="172" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="700" fill="#1D4ED8" text-anchor="end" data-role="label">73.6</text>
+<line x1="148" y1="65" x2="179" y2="65" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="179.00" cy="65" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="198" y="68" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">182</text>
+<line x1="148" y1="91" x2="179" y2="91" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="172.60" cy="91" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="198" y="94" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">169</text>
+<line x1="148" y1="117" x2="179" y2="117" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="163.75" cy="117" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="198" y="120" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">151</text>
+<line x1="148" y1="143" x2="179" y2="143" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="152.43" cy="143" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="198" y="146" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">128</text>
+<line x1="148" y1="169" x2="179" y2="169" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="148.00" cy="169" r="3.5" fill="#2563EB" stroke="#1D4ED8" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="198" y="172" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="700" fill="#1D4ED8" text-anchor="end" data-role="label">119</text>
+<line x1="217" y1="65" x2="248" y2="65" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="248.00" cy="65" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="267" y="68" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">412</text>
+<line x1="217" y1="91" x2="248" y2="91" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="239.12" cy="91" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="267" y="94" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">365</text>
+<line x1="217" y1="117" x2="248" y2="117" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="234.01" cy="117" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="267" y="120" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">338</text>
+<line x1="217" y1="143" x2="248" y2="143" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="225.13" cy="143" r="2.8" fill="#6B7280" stroke="#FFFFFF" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="267" y="146" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="400" fill="#1F2937" text-anchor="end" data-role="label">291</text>
+<line x1="217" y1="169" x2="248" y2="169" stroke="#E5E7EB" stroke-width="1.2" data-role="axis"/>
+<circle cx="217.00" cy="169" r="3.5" fill="#2563EB" stroke="#1D4ED8" stroke-width="0.8" data-role="main-result-mark"/>
+<text x="267" y="172" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="700" fill="#1D4ED8" text-anchor="end" data-role="label">248</text>
+<text x="140" y="201" font-family="Arial, Helvetica, sans-serif" font-size="8.3" font-weight="400" fill="#6B7280" text-anchor="middle" data-role="label">All values shown exactly as provided</text>
+</svg>

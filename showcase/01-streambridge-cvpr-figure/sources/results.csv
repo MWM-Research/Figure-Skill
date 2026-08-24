@@ -1,0 +1,6 @@
+Method,Accuracy,FLOPs,Latency
+Video-LLaVA,61.8,182,412
+InternVideo2,65.1,169,365
+LongVA,67.4,151,338
+StreamBridge,70.2,128,291
+StreamBridge++,73.6,119,248

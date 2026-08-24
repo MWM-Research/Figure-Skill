@@ -198,6 +198,16 @@ AUTOFIGURE_SVG_MODEL=<verified multimodal chat model>
 
 完全不使用付费分割服务时，将 `AUTOFIGURE_SAM_BACKEND` 设为 `none`。该模式跳过图标抠取，直接使用多模态模型进行纯 SVG 重建，适合流程图、架构图和文本框图；复杂插画的还原质量会低于 SAM 分割路线。
 
+## 测试案例展示
+
+[`showcase/`](showcase/) 保存已经完成的人工测试案例。每个案例尽量保留最终 PNG/SVG/PDF、输入素材、复现脚本、provenance 与 QA 报告，用于直观展示 Figure Skill 的实际能力和验收边界。
+
+当前案例：
+
+- [01 · StreamBridge++ CVPR Hybrid Figure](showcase/01-streambridge-cvpr-figure/)：验证视频帧与 attention heatmap 使用 raster `<image>`，模型模块、箭头、文字、坐标轴和实验图标记使用矢量元素；Hybrid 结构审计和最终 QA 均为 `pass`。
+
+![StreamBridge++ CVPR Figure](showcase/01-streambridge-cvpr-figure/final/figure.png)
+
 ## 公开验收
 
 2026-08-20 使用 UCI Iris、scikit-learn 官方 Pipeline 和 Wikimedia Commons CC0/公共领域图片完成公开验收。四条确定性路线全部通过；人工神经元纯 SVG 重建通过，复杂神经网络重建为警告；验收过程中修复散点轴选择、散点标题和内嵌位图误报成功三个问题。

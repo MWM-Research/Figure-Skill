@@ -1,0 +1,355 @@
+{
+  "schema_version": "1.2",
+  "status": "warn",
+  "technical_status": "warn",
+  "scientific_status": "not-applicable",
+  "human_review_status": "not-required",
+  "target": ".",
+  "checks": [
+    {
+      "check": "target-has-files",
+      "status": "pass"
+    },
+    {
+      "check": "files-nonempty",
+      "status": "pass"
+    },
+    {
+      "check": "editable-source-present",
+      "status": "pass",
+      "detail": "required"
+    },
+    {
+      "check": "vector-export-present",
+      "status": "pass",
+      "detail": "required"
+    },
+    {
+      "check": "preview-present",
+      "status": "pass"
+    },
+    {
+      "check": "pdf-readable",
+      "status": "pass",
+      "file": "final\\figure.pdf",
+      "size_bytes": 4732313
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "final\\figure.png",
+      "width": 1344,
+      "height": 884
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "final\\figure.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "final\\figure.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "final\\figure.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "warn",
+      "file": "final\\figure.svg",
+      "detail": "contains 6 embedded image element(s)"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel-a-pipeline.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel-a-pipeline.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel-a-pipeline.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "warn",
+      "file": "panels\\panel-a-pipeline.svg",
+      "detail": "contains 4 embedded image element(s)"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel-b-attention.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel-b-attention.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel-b-attention.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "warn",
+      "file": "panels\\panel-b-attention.svg",
+      "detail": "contains 2 embedded image element(s)"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel-c-results.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel-c-results.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel-c-results.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "pass",
+      "file": "panels\\panel-c-results.svg",
+      "detail": "no embedded raster images"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel-d-ablation.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel-d-ablation.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel-d-ablation.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "pass",
+      "file": "panels\\panel-d-ablation.svg",
+      "detail": "no embedded raster images"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel_a.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel_a.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel_a.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "warn",
+      "file": "panels\\panel_a.svg",
+      "detail": "contains 4 embedded image element(s)"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel_b.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel_b.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel_b.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "warn",
+      "file": "panels\\panel_b.svg",
+      "detail": "contains 2 embedded image element(s)"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel_c.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel_c.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel_c.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "pass",
+      "file": "panels\\panel_c.svg",
+      "detail": "no embedded raster images"
+    },
+    {
+      "check": "svg-xml-valid",
+      "status": "pass",
+      "file": "panels\\panel_d.svg"
+    },
+    {
+      "check": "svg-has-canvas-size",
+      "status": "pass",
+      "file": "panels\\panel_d.svg"
+    },
+    {
+      "check": "svg-no-placeholders",
+      "status": "pass",
+      "file": "panels\\panel_d.svg"
+    },
+    {
+      "check": "svg-not-raster-only",
+      "status": "pass",
+      "file": "panels\\panel_d.svg",
+      "detail": "no embedded raster images"
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\attention_baseline.png",
+      "width": 399,
+      "height": 387
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\attention_streambridgepp.png",
+      "width": 400,
+      "height": 387
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\frame_t-1.png",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\frame_t-2.png",
+      "width": 933,
+      "height": 583
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\frame_t-3.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "check": "png-valid-size",
+      "status": "pass",
+      "file": "sources\\assets\\frame_t.png",
+      "width": 800,
+      "height": 456
+    },
+    {
+      "check": "plan-evidence-guard",
+      "status": "pass"
+    },
+    {
+      "check": "plan-open-questions-resolved",
+      "status": "pass"
+    },
+    {
+      "check": "plan-reviewed",
+      "status": "pass",
+      "value": "approved"
+    },
+    {
+      "check": "planned-panels-present",
+      "status": "pass",
+      "detail": "found 4 panel(s)"
+    },
+    {
+      "check": "data-render-source-present",
+      "status": "pass"
+    },
+    {
+      "check": "data-provenance-present",
+      "status": "pass"
+    },
+    {
+      "check": "provenance-readable",
+      "status": "pass",
+      "file": "provenance\\data-provenance.json"
+    },
+    {
+      "check": "provenance-source-hash",
+      "status": "pass",
+      "panel": "c",
+      "source": "sources\\results.csv"
+    },
+    {
+      "check": "provenance-mark-values",
+      "status": "pass",
+      "panel": "c",
+      "detail": "verified 15 marks"
+    },
+    {
+      "check": "provenance-source-hash",
+      "status": "pass",
+      "panel": "d",
+      "source": "sources\\ablation.csv"
+    },
+    {
+      "check": "provenance-mark-values",
+      "status": "pass",
+      "panel": "d",
+      "detail": "verified 4 marks"
+    },
+    {
+      "check": "hybrid-structure-audit-present",
+      "status": "pass",
+      "count": 1
+    },
+    {
+      "check": "hybrid-audit-readable",
+      "status": "pass",
+      "file": "reports\\hybrid-structure-audit.json"
+    },
+    {
+      "check": "hybrid-audit-source-hash",
+      "status": "pass",
+      "source": "final\\figure.svg"
+    },
+    {
+      "check": "hybrid-audit-plan-hash",
+      "status": "pass",
+      "plan": "figure-plan.json"
+    },
+    {
+      "check": "hybrid-audit-contract",
+      "status": "pass"
+    }
+  ]
+}

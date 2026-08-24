@@ -1,0 +1,238 @@
+{
+  "schema_version": "1.0",
+  "status": "pass",
+  "plan": "figure-plan.json",
+  "plan_sha256": "1c8924a64e4d812124b73a1ebb368b4f1c680c0d5ab68389959a5a18b2ba9e25",
+  "source": "final\\figure.svg",
+  "source_sha256": "2d718c1d7be96b8a7b910aea4ddf6c17c5767fcf5fc1961ab1547856d6ba1d3b",
+  "asset_root": ".",
+  "tag_counts": {
+    "svg": 1,
+    "defs": 1,
+    "marker": 1,
+    "path": 11,
+    "metadata": 1,
+    "rect": 22,
+    "g": 4,
+    "text": 74,
+    "image": 6,
+    "circle": 22,
+    "line": 27
+  },
+  "role_counts": {
+    "canvas": 1,
+    "panel-border": 4,
+    "label": 74,
+    "video-frame-raster": 4,
+    "frame-border": 4,
+    "data-flow-arrow": 7,
+    "transformer-module": 4,
+    "visual-token": 5,
+    "compressed-token": 2,
+    "memory-slot": 3,
+    "instruction-chip": 1,
+    "response-box": 1,
+    "attention-heatmap-raster": 2,
+    "heatmap-border": 2,
+    "axis": 24,
+    "axis-arrow": 3,
+    "method-highlight": 1,
+    "main-result-mark": 15,
+    "ablation-result-bar": 4
+  },
+  "image_mappings": [
+    {
+      "role": "video-frame-raster",
+      "index": 1,
+      "embedded_sha256": "3e8e991018e641186a409a4013a61792a3b703d4324e8ba9a1c5536b1889a261",
+      "source": "sources\\assets\\frame_t-3.png"
+    },
+    {
+      "role": "video-frame-raster",
+      "index": 2,
+      "embedded_sha256": "5c703e5773d5638d0c348af3b9dac3888cffc05b7016e869d8092f6e9d67fb51",
+      "source": "sources\\assets\\frame_t-2.png"
+    },
+    {
+      "role": "video-frame-raster",
+      "index": 3,
+      "embedded_sha256": "29af6307418d23d0d6c48e1d1badf4f92d22982618c5497afa88bcb104ac1860",
+      "source": "sources\\assets\\frame_t-1.png"
+    },
+    {
+      "role": "video-frame-raster",
+      "index": 4,
+      "embedded_sha256": "959de4049c51b22355a220e1bc23216af3069ab3f301d86b38f76b530847eafb",
+      "source": "sources\\assets\\frame_t.png"
+    },
+    {
+      "role": "attention-heatmap-raster",
+      "index": 1,
+      "embedded_sha256": "bb298d42232bebc1f9112fb729ed3992103dcbdd1249ed1265e909ce0757d362",
+      "source": "sources\\assets\\attention_baseline.png"
+    },
+    {
+      "role": "attention-heatmap-raster",
+      "index": 2,
+      "embedded_sha256": "6d9c450981bbd218e63ba955d81c509c0cb9bf4bf4a3e701b8d45cde9b858195",
+      "source": "sources\\assets\\attention_streambridgepp.png"
+    }
+  ],
+  "checks": [
+    {
+      "check": "role-count:video-frame-raster",
+      "status": "pass",
+      "expected": 4,
+      "actual": 4
+    },
+    {
+      "check": "role-svg-tag:video-frame-raster",
+      "status": "pass",
+      "expected": "image",
+      "actual": [
+        "image"
+      ]
+    },
+    {
+      "check": "embedded-png:video-frame-raster",
+      "status": "pass",
+      "count": 4
+    },
+    {
+      "check": "source-hash-match:video-frame-raster",
+      "status": "pass",
+      "embedded_count": 4,
+      "source_count": 4
+    },
+    {
+      "check": "role-count:attention-heatmap-raster",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "check": "role-svg-tag:attention-heatmap-raster",
+      "status": "pass",
+      "expected": "image",
+      "actual": [
+        "image"
+      ]
+    },
+    {
+      "check": "embedded-png:attention-heatmap-raster",
+      "status": "pass",
+      "count": 2
+    },
+    {
+      "check": "source-hash-match:attention-heatmap-raster",
+      "status": "pass",
+      "embedded_count": 2,
+      "source_count": 2
+    },
+    {
+      "check": "role-count:transformer-module",
+      "status": "pass",
+      "expected": 4,
+      "actual": 4
+    },
+    {
+      "check": "role-svg-tag:transformer-module",
+      "status": "pass",
+      "expected": "rect",
+      "actual": [
+        "rect"
+      ]
+    },
+    {
+      "check": "role-count:data-flow-arrow",
+      "status": "pass",
+      "expected": {
+        "min": 7,
+        "max": null
+      },
+      "actual": 7
+    },
+    {
+      "check": "role-svg-tag:data-flow-arrow",
+      "status": "pass",
+      "expected": "path",
+      "actual": [
+        "path"
+      ]
+    },
+    {
+      "check": "role-count:main-result-mark",
+      "status": "pass",
+      "expected": 15,
+      "actual": 15
+    },
+    {
+      "check": "role-svg-tag:main-result-mark",
+      "status": "pass",
+      "expected": "circle",
+      "actual": [
+        "circle"
+      ]
+    },
+    {
+      "check": "role-count:ablation-result-bar",
+      "status": "pass",
+      "expected": 4,
+      "actual": 4
+    },
+    {
+      "check": "role-svg-tag:ablation-result-bar",
+      "status": "pass",
+      "expected": "rect",
+      "actual": [
+        "rect"
+      ]
+    },
+    {
+      "check": "role-count:axis",
+      "status": "pass",
+      "expected": {
+        "min": 10,
+        "max": null
+      },
+      "actual": 24
+    },
+    {
+      "check": "role-svg-tag:axis",
+      "status": "pass",
+      "expected": "line",
+      "actual": [
+        "line"
+      ]
+    },
+    {
+      "check": "role-count:label",
+      "status": "pass",
+      "expected": {
+        "min": 1,
+        "max": null
+      },
+      "actual": 74
+    },
+    {
+      "check": "role-svg-tag:label",
+      "status": "pass",
+      "expected": "text",
+      "actual": [
+        "text"
+      ]
+    },
+    {
+      "check": "unclassified-images",
+      "status": "pass",
+      "count": 0,
+      "policy": "forbid"
+    },
+    {
+      "check": "visible-labels",
+      "status": "pass",
+      "missing": [],
+      "extra": []
+    }
+  ]
+}

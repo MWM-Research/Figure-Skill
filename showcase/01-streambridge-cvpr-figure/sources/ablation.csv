@@ -1,0 +1,5 @@
+Module,Accuracy
+Baseline,66.8
++ Memory Compressor,69.9
++ Cross-modal Memory,71.8
++ Event-aware Compression,73.6

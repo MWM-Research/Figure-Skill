@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "status": "pass",
+  "note": "Figure Skill's generic raster-presence warnings are expected and resolved by the passing hybrid representation audit.",
+  "checks": [
+    {
+      "check": "required-deliverables",
+      "status": "pass"
+    },
+    {
+      "check": "hybrid-contract",
+      "status": "pass",
+      "video_frames": 4,
+      "attention_heatmaps": 2,
+      "main_result_marks": 15,
+      "ablation_bars": 4
+    },
+    {
+      "check": "figure-skill-technical",
+      "status": "pass",
+      "raw_status": "warn",
+      "expected_raster_warnings": 5,
+      "failures": [],
+      "unexpected_warnings": []
+    },
+    {
+      "check": "quantitative-row-counts",
+      "status": "pass",
+      "results_rows": 5,
+      "ablation_rows": 4,
+      "verified_marks": 19
+    },
+    {
+      "check": "png-publication-preview",
+      "status": "pass",
+      "size": [
+        1344,
+        884
+      ]
+    },
+    {
+      "check": "pdf-page-size",
+      "status": "pass",
+      "pages": 1,
+      "page_size_pt": [
+        504.0,
+        330.96
+      ]
+    },
+    {
+      "check": "independent-visual-review",
+      "status": "pass",
+      "detail": "SVG PNG preview and independent Poppler PDF render inspected at double-column size; no clipping, overlap, missing font, or unreadable label observed."
+    }
+  ],
+  "deliverable_hashes": {
+    "final\\figure.svg": "2d718c1d7be96b8a7b910aea4ddf6c17c5767fcf5fc1961ab1547856d6ba1d3b",
+    "final\\figure.pdf": "a426144762121603771abb9bad6c037e6666d438c6f7a2d31e311a72fe2b8563",
+    "final\\figure.png": "54030152d9288b636c528b90a9cc1c03ca2156edf23132d84b7b6207a8efaaf2"
+  }
+}

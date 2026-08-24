@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "panels": [
+    {
+      "panel": "c",
+      "source_file": "sources/results.csv",
+      "source_sha256": "3f99a91cf2174f5e67d62352c1c2ee25719fe13d382fa9f02b55372aead3e10b",
+      "marks": [
+        {
+          "source_row": 2,
+          "x": {
+            "column": "Accuracy",
+            "value": 61.8
+          },
+          "group": {
+            "column": "Method",
+            "value": "Video-LLaVA"
+          }
+        },
+        {
+          "source_row": 3,
+          "x": {
+            "column": "Accuracy",
+            "value": 65.1
+          },
+          "group": {
+            "column": "Method",
+            "value": "InternVideo2"
+          }
+        },
+        {
+          "source_row": 4,
+          "x": {
+            "column": "Accuracy",
+            "value": 67.4
+          },
+          "group": {
+            "column": "Method",
+            "value": "LongVA"
+          }
+        },
+        {
+          "source_row": 5,
+          "x": {
+            "column": "Accuracy",
+            "value": 70.2
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge"
+          }
+        },
+        {
+          "source_row": 6,
+          "x": {
+            "column": "Accuracy",
+            "value": 73.6
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge++"
+          }
+        },
+        {
+          "source_row": 2,
+          "x": {
+            "column": "FLOPs",
+            "value": 182.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "Video-LLaVA"
+          }
+        },
+        {
+          "source_row": 3,
+          "x": {
+            "column": "FLOPs",
+            "value": 169.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "InternVideo2"
+          }
+        },
+        {
+          "source_row": 4,
+          "x": {
+            "column": "FLOPs",
+            "value": 151.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "LongVA"
+          }
+        },
+        {
+          "source_row": 5,
+          "x": {
+            "column": "FLOPs",
+            "value": 128.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge"
+          }
+        },
+        {
+          "source_row": 6,
+          "x": {
+            "column": "FLOPs",
+            "value": 119.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge++"
+          }
+        },
+        {
+          "source_row": 2,
+          "x": {
+            "column": "Latency",
+            "value": 412.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "Video-LLaVA"
+          }
+        },
+        {
+          "source_row": 3,
+          "x": {
+            "column": "Latency",
+            "value": 365.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "InternVideo2"
+          }
+        },
+        {
+          "source_row": 4,
+          "x": {
+            "column": "Latency",
+            "value": 338.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "LongVA"
+          }
+        },
+        {
+          "source_row": 5,
+          "x": {
+            "column": "Latency",
+            "value": 291.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge"
+          }
+        },
+        {
+          "source_row": 6,
+          "x": {
+            "column": "Latency",
+            "value": 248.0
+          },
+          "group": {
+            "column": "Method",
+            "value": "StreamBridge++"
+          }
+        }
+      ]
+    },
+    {
+      "panel": "d",
+      "source_file": "sources/ablation.csv",
+      "source_sha256": "ec3eb2ee93fe4e7f83f833e1778a43e3d9d8875db2fe639f0dd5f282948bacbb",
+      "marks": [
+        {
+          "source_row": 2,
+          "x": {
+            "column": "Accuracy",
+            "value": 66.8
+          },
+          "group": {
+            "column": "Module",
+            "value": "Baseline"
+          }
+        },
+        {
+          "source_row": 3,
+          "x": {
+            "column": "Accuracy",
+            "value": 69.9
+          },
+          "group": {
+            "column": "Module",
+            "value": "+ Memory Compressor"
+          }
+        },
+        {
+          "source_row": 4,
+          "x": {
+            "column": "Accuracy",
+            "value": 71.8
+          },
+          "group": {
+            "column": "Module",
+            "value": "+ Cross-modal Memory"
+          }
+        },
+        {
+          "source_row": 5,
+          "x": {
+            "column": "Accuracy",
+            "value": 73.6
+          },
+          "group": {
+            "column": "Module",
+            "value": "+ Event-aware Compression"
+          }
+        }
+      ]
+    }
+  ]
+}

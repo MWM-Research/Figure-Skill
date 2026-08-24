@@ -1,0 +1,161 @@
+{
+  "schema_version": "1.0",
+  "source_files": [
+    {
+      "path": "sources\\ablation.csv",
+      "sha256": "ec3eb2ee93fe4e7f83f833e1778a43e3d9d8875db2fe639f0dd5f282948bacbb",
+      "bytes": 112
+    },
+    {
+      "path": "sources\\methods.md",
+      "sha256": "43c60d41ecb1b0dd43eee01ebc575bb2a34f6d33fbe028e79908cfcb9d1b83e3",
+      "bytes": 484
+    },
+    {
+      "path": "sources\\originals\\attention_source.jpg",
+      "sha256": "bcf6e44ba8a84988c55e32b4114b76b6c85711a68faaf9849603b2f7ea14511b",
+      "bytes": 47620
+    },
+    {
+      "path": "sources\\originals\\frame_t-1.jpg",
+      "sha256": "92aaf7d04137a067398eeb5d1de8507503389fa13e5cb068c60c6055849d2542",
+      "bytes": 94749
+    },
+    {
+      "path": "sources\\originals\\frame_t-2.jpg",
+      "sha256": "a66f712738281b9b2d5ae1a3871c76f4c65eaac32f3074150ee061209858c43d",
+      "bytes": 73042
+    },
+    {
+      "path": "sources\\originals\\frame_t-3.jpg",
+      "sha256": "2612a2a13e8a3c9b747d8a5a66dc6fab7ea96798cdf45e7ea0eb523561385240",
+      "bytes": 98712
+    },
+    {
+      "path": "sources\\originals\\frame_t.jpg",
+      "sha256": "f018f88d6fcf2858d58411c193ebca43c545ed51e2b2a82cb84be601846c43cf",
+      "bytes": 94846
+    },
+    {
+      "path": "sources\\results.csv",
+      "sha256": "3f99a91cf2174f5e67d62352c1c2ee25719fe13d382fa9f02b55372aead3e10b",
+      "bytes": 155
+    }
+  ],
+  "frame_order": [
+    "frame_t-3.jpg",
+    "frame_t-2.jpg",
+    "frame_t-1.jpg",
+    "frame_t.jpg"
+  ],
+  "frame_semantics": "user-confirmed same-video temporal order using folder enumeration",
+  "method_relations": [
+    {
+      "from": "Streaming video",
+      "to": "Video Encoder",
+      "relation": "frame input"
+    },
+    {
+      "from": "Video Encoder",
+      "to": "Memory Compressor",
+      "relation": "frame-level visual tokens"
+    },
+    {
+      "from": "Memory Compressor",
+      "to": "Cross-modal Memory",
+      "relation": "compressed visual memory"
+    },
+    {
+      "from": "Cross-modal Memory",
+      "to": "LLM",
+      "relation": "retrieved historical context"
+    },
+    {
+      "from": "User instruction",
+      "to": "LLM",
+      "relation": "instruction input"
+    },
+    {
+      "from": "LLM",
+      "to": "Response",
+      "relation": "generated response"
+    }
+  ],
+  "label_substitution": {
+    "source": "w/ ours",
+    "vector_label": "StreamBridge++",
+    "basis": "user-approved"
+  },
+  "asset_transforms": [
+    {
+      "source": "sources\\originals\\frame_t-3.jpg",
+      "source_sha256": "2612a2a13e8a3c9b747d8a5a66dc6fab7ea96798cdf45e7ea0eb523561385240",
+      "derived": "sources\\assets\\frame_t-3.png",
+      "derived_sha256": "3e8e991018e641186a409a4013a61792a3b703d4324e8ba9a1c5536b1889a261",
+      "operation": "lossless container conversion JPEG decode to RGB PNG; SVG uses xMidYMid slice",
+      "source_dimensions": [
+        800,
+        600
+      ]
+    },
+    {
+      "source": "sources\\originals\\frame_t-2.jpg",
+      "source_sha256": "a66f712738281b9b2d5ae1a3871c76f4c65eaac32f3074150ee061209858c43d",
+      "derived": "sources\\assets\\frame_t-2.png",
+      "derived_sha256": "5c703e5773d5638d0c348af3b9dac3888cffc05b7016e869d8092f6e9d67fb51",
+      "operation": "lossless container conversion JPEG decode to RGB PNG; SVG uses xMidYMid slice",
+      "source_dimensions": [
+        933,
+        583
+      ]
+    },
+    {
+      "source": "sources\\originals\\frame_t-1.jpg",
+      "source_sha256": "92aaf7d04137a067398eeb5d1de8507503389fa13e5cb068c60c6055849d2542",
+      "derived": "sources\\assets\\frame_t-1.png",
+      "derived_sha256": "29af6307418d23d0d6c48e1d1badf4f92d22982618c5497afa88bcb104ac1860",
+      "operation": "lossless container conversion JPEG decode to RGB PNG; SVG uses xMidYMid slice",
+      "source_dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "source": "sources\\originals\\frame_t.jpg",
+      "source_sha256": "f018f88d6fcf2858d58411c193ebca43c545ed51e2b2a82cb84be601846c43cf",
+      "derived": "sources\\assets\\frame_t.png",
+      "derived_sha256": "959de4049c51b22355a220e1bc23216af3069ab3f301d86b38f76b530847eafb",
+      "operation": "lossless container conversion JPEG decode to RGB PNG; SVG uses xMidYMid slice",
+      "source_dimensions": [
+        800,
+        456
+      ]
+    },
+    {
+      "source": "sources\\originals\\attention_source.jpg",
+      "source_sha256": "bcf6e44ba8a84988c55e32b4114b76b6c85711a68faaf9849603b2f7ea14511b",
+      "derived": "sources\\assets\\attention_baseline.png",
+      "derived_sha256": "bb298d42232bebc1f9112fb729ed3992103dcbdd1249ed1265e909ce0757d362",
+      "operation": "pixel-preserving crop followed by RGB PNG encoding",
+      "crop_box_xyxy": [
+        40,
+        35,
+        439,
+        422
+      ]
+    },
+    {
+      "source": "sources\\originals\\attention_source.jpg",
+      "source_sha256": "bcf6e44ba8a84988c55e32b4114b76b6c85711a68faaf9849603b2f7ea14511b",
+      "derived": "sources\\assets\\attention_streambridgepp.png",
+      "derived_sha256": "6d9c450981bbd218e63ba955d81c509c0cb9bf4bf4a3e701b8d45cde9b858195",
+      "operation": "pixel-preserving crop followed by RGB PNG encoding",
+      "crop_box_xyxy": [
+        527,
+        35,
+        927,
+        422
+      ]
+    }
+  ]
+}
