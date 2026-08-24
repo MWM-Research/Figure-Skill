@@ -2,7 +2,7 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.5.0`
+Current internal release: `v0.6.0`
 
 ## 团队安装
 
@@ -57,7 +57,7 @@ Windows 成员在完整仓库中可交互运行：
 使用 $figure-skill 根据 methods.md 生成一张 3D 风格科研概念插画。
 ```
 
-Skill 会先停在计划审核阶段；批准后才会在显式联网授权下生成。API 返回成功只表示获得候选图，最终仍必须完成人工科研一致性检查。
+Skill 会先停在计划审核阶段；批准后才会在显式联网授权下生成。API 返回成功只表示获得候选图。QA 会分别报告技术、科学和人工审核状态，只有尺寸完全匹配、全部科学断言通过并记录用户明确批准后，整体状态才会成为 `pass`。
 
 ## 快速开始
 
@@ -128,7 +128,7 @@ python "$FigureSkill\scripts\figure.py" workflow `
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.5.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.6.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

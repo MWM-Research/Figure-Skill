@@ -1,6 +1,6 @@
 {
   "name": "figure-skill",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Evidence-aware vector and generated raster scientific figures, editing, provenance, and QA for Codex.",
   "author": {
     "name": "MWM-Research",

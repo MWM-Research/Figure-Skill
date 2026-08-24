@@ -8,6 +8,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -173,9 +174,12 @@ def execute_request(request: dict, api_key: str, allow_insecure_http: bool = Fal
         raise RuntimeError(f"provider image is too small: {width}x{height}")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(image_bytes)
+    size_match = re.fullmatch(r"(\d+)x(\d+)", str(request.get("size", "")))
+    requested_size = [int(size_match.group(1)), int(size_match.group(2))] if size_match else None
+    size_matches_request = bool(requested_size and [width, height] == requested_size)
     return {
         "schema_version": "1.0",
-        "status": "generated-awaiting-human-review",
+        "status": "generated-awaiting-human-review" if size_matches_request else "generated-size-mismatch-awaiting-review",
         "generated_content": True,
         "evidence_role": request["evidence_role"],
         "model": request["model"],
@@ -186,6 +190,8 @@ def execute_request(request: dict, api_key: str, allow_insecure_http: bool = Fal
         "output_sha256": hashlib.sha256(image_bytes).hexdigest(),
         "width": width,
         "height": height,
+        "requested_size": requested_size,
+        "size_matches_request": size_matches_request,
         "format": image_format,
         "human_review_required": True,
     }

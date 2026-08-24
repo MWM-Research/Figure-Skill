@@ -94,6 +94,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 - Read [references/backend-selection.md](references/backend-selection.md) before adding or replacing an external backend; it records the reviewed alternatives, licenses, and unavailable links from the team list.
 - PaperBanana and AutoFigure-Edit are optional AI enhancements and are not installed during core bootstrap. If they are absent, use deterministic plotting, SVG diagrams, native SVG editing, assembly, provenance, and QA without requesting an API key.
 - The BYOK raster route uses the member's `FIGURE_IMAGE_API_KEY`, never a repository credential. Prepare a redacted request first and require `--execute-raster --allow-network` after plan approval. API completion remains `generated-awaiting-human-review` until visual scientific review.
+- For every generated raster, run `scripts/figure.py review prepare`, record every plan-derived scientific assertion, and obtain explicit human approval. Technical success alone must report `warn` or `fail`; only matching canvas size, a passing scientific assessment, and recorded human approval may produce overall `pass`.
 - Only from a full project checkout, `scripts/setup_external_backends.ps1` can create fixed-version, isolated PaperBanana and AutoFigure-Edit runtimes. Plugin-only installations intentionally do not fetch third-party repositories.
 - Do not install, authenticate, upload unpublished material, or call paid services without user authorization.
 - Keep API keys outside plans, prompts, logs, and generated artifacts.

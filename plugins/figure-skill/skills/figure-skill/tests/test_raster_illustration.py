@@ -9,6 +9,7 @@ import sys
 import tempfile
 import threading
 import unittest
+import shutil
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
 from pathlib import Path
@@ -61,6 +62,7 @@ class RasterIllustrationTests(unittest.TestCase):
         )
         cls.planner = load_module("raster_plan_figure", SCRIPTS / "plan_figure.py")
         cls.qa = load_module("raster_qa_figure", SCRIPTS / "qa_figure.py")
+        cls.reviewer = load_module("review_generated_figure", SCRIPTS / "review_generated_figure.py")
 
     def plan(self, root: Path) -> dict:
         return {
@@ -80,6 +82,7 @@ class RasterIllustrationTests(unittest.TestCase):
                 "entities": ["Encoder", "Classifier"],
                 "edges": [{"from": "Encoder", "to": "Classifier", "meaning": "data-flow"}],
                 "visible_labels": [], "forbidden_content": ["invented measurements"],
+                "canvas": {"width": 400, "height": 300},
             }],
         }
 
@@ -93,6 +96,7 @@ class RasterIllustrationTests(unittest.TestCase):
         self.assertEqual(plan["route"], "raster-illustration")
         self.assertEqual(plan["panels"][0]["style"], "3d-render")
         self.assertEqual(plan["panels"][0]["evidence_role"], "illustrative")
+        self.assertEqual(plan["panels"][0]["canvas"], {"width": 1024, "height": 1024})
         self.assertFalse(plan["constraints"]["editable_source_required"])
 
     def test_manifest_is_redacted_and_key_is_environment_only(self):
@@ -123,19 +127,57 @@ class RasterIllustrationTests(unittest.TestCase):
                 request = self.adapter.prepare_request(
                     plan, plan["panels"][0], root,
                     f"http://127.0.0.1:{server.server_port}/v1", "image-model",
-                    "1024x1024", "medium", allow_insecure_http=True,
+                    "400x300", "medium", allow_insecure_http=True,
                 )
                 manifest = self.adapter.write_manifest(request, root)
                 provenance = self.adapter.execute_request(request, "unit-test-key", allow_insecure_http=True)
+                self.assertTrue(provenance["size_matches_request"])
+                self.assertEqual(provenance["requested_size"], [400, 300])
                 (root / "generation-provenance.json").write_text(
                     json.dumps(provenance, ensure_ascii=False, indent=2), encoding="utf-8"
                 )
                 self.assertTrue((root / "panel_a.png").is_file())
+                (root / "final").mkdir()
+                shutil.copy2(root / "panel_a.png", root / "final" / "figure.png")
                 self.assertEqual(ImageHandler.authorization, "Bearer unit-test-key")
                 self.assertEqual(ImageHandler.request_body["model"], "image-model")
                 self.assertNotIn("unit-test-key", manifest.read_text(encoding="utf-8"))
-                report = self.qa.run_qa(root, plan)
-                self.assertEqual(report["status"], "pass", report)
+                plan_path = root / "figure-plan.json"
+                plan_path.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+                pending = self.qa.run_qa(root, plan)
+                self.assertEqual(pending["technical_status"], "pass", pending)
+                self.assertEqual(pending["scientific_status"], "pending", pending)
+                self.assertEqual(pending["human_review_status"], "pending", pending)
+                self.assertEqual(pending["status"], "warn", pending)
+
+                review = self.reviewer.prepare_review(plan_path, root / "panel_a.png")
+                with self.assertRaisesRegex(ValueError, "passing scientific assessment"):
+                    self.reviewer.apply_human_decision(
+                        review, "approved", "unit-test-human", "Not assessed yet.", True
+                    )
+                results = [f"{item['id']}=pass" for item in review["scientific_assessment"]["assertions"]]
+                review = self.reviewer.apply_assessment(review, results, "unit-test-agent")
+                review_path = root / "scientific-review.json"
+                self.reviewer.write_review(review, review_path)
+                assessed = self.qa.run_qa(root, plan)
+                self.assertEqual(assessed["scientific_status"], "pass", assessed)
+                self.assertEqual(assessed["human_review_status"], "pending", assessed)
+                self.assertEqual(assessed["status"], "warn", assessed)
+
+                review = self.reviewer.apply_human_decision(
+                    review, "approved", "unit-test-human", "Reviewed the generated image.", True
+                )
+                self.reviewer.write_review(review, review_path)
+                approved = self.qa.run_qa(root, plan)
+                self.assertEqual(approved["status"], "pass", approved)
+                self.assertEqual(approved["technical_status"], "pass", approved)
+                self.assertEqual(approved["scientific_status"], "pass", approved)
+                self.assertEqual(approved["human_review_status"], "approved", approved)
+
+                plan["panels"][0]["canvas"] = {"width": 401, "height": 300}
+                wrong_size = self.qa.run_qa(root, plan)
+                self.assertEqual(wrong_size["technical_status"], "fail", wrong_size)
+                self.assertEqual(wrong_size["status"], "fail", wrong_size)
         finally:
             server.shutdown()
             server.server_close()

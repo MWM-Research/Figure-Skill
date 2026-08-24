@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -98,7 +99,7 @@ def main() -> int:
     parser.add_argument("--allow-network", action="store_true", help="Authorize the selected external generation request")
     parser.add_argument("--image-base-url", help="OpenAI-compatible base URL; defaults to FIGURE_IMAGE_BASE_URL")
     parser.add_argument("--image-model", help="Image generation model; defaults to FIGURE_IMAGE_MODEL")
-    parser.add_argument("--image-size", default="1024x1024")
+    parser.add_argument("--image-size", help="Exact WIDTHxHEIGHT canvas; defaults to the reviewed plan")
     parser.add_argument("--image-quality", default="medium")
     args = parser.parse_args()
 
@@ -109,6 +110,31 @@ def main() -> int:
     output = args.output.resolve()
     ensure_output_scope(output, continuing=bool(args.plan), force=args.force)
     plan, plan_path = create_plan(args, output)
+    raster_panels = [panel for panel in plan.get("panels", []) if panel.get("type") == "raster-illustration"]
+    effective_image_size = args.image_size
+    if raster_panels:
+        if len(raster_panels) != 1:
+            parser.error("raster-illustration route currently supports exactly one panel")
+        canvas = raster_panels[0].get("canvas", {})
+        planned_size = f"{canvas.get('width')}x{canvas.get('height')}"
+        if args.input:
+            effective_image_size = effective_image_size or "1024x1024"
+            match = re.fullmatch(r"(\d+)x(\d+)", effective_image_size)
+            if not match:
+                parser.error("--image-size must use WIDTHxHEIGHT")
+            width, height = int(match.group(1)), int(match.group(2))
+            if width <= 0 or height <= 0:
+                parser.error("--image-size dimensions must be positive")
+            raster_panels[0]["canvas"] = {"width": width, "height": height}
+            plan_path.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        else:
+            if not re.fullmatch(r"\d+x\d+", planned_size):
+                parser.error("reviewed raster plan must contain an integer canvas width and height")
+            if int(canvas["width"]) <= 0 or int(canvas["height"]) <= 0:
+                parser.error("reviewed raster canvas dimensions must be positive")
+            if effective_image_size and effective_image_size != planned_size:
+                parser.error("--image-size cannot override the reviewed plan; update and re-approve the plan")
+            effective_image_size = planned_size
     print(f"Planned route {plan.get('route')} with {len(plan.get('panels', []))} panel(s): {plan_path}")
     if args.stop_after_plan:
         return 0
@@ -134,7 +160,7 @@ def main() -> int:
     if "raster-illustration" in panel_types:
         command = [
             sys.executable, str(HERE / "adapters" / "raster_illustration_adapter.py"), str(plan_path),
-            "--output-dir", str(panels_dir), "--size", args.image_size, "--quality", args.image_quality,
+            "--output-dir", str(panels_dir), "--size", effective_image_size, "--quality", args.image_quality,
         ]
         if args.image_base_url:
             command.extend(["--base-url", args.image_base_url])
@@ -158,11 +184,16 @@ def main() -> int:
         if len(raster_panels) != 1:
             raise RuntimeError("raster-illustration route expected exactly one generated panel PNG")
         shutil.copy2(raster_panels[0], final_dir / "figure.png")
+        review_path = reports_dir / "scientific-review.json"
+        run_checked([
+            sys.executable, str(HERE / "review_generated_figure.py"), "prepare",
+            "--plan", str(plan_path), "--image", str(raster_panels[0]), "--output", str(review_path),
+        ])
         run_checked([
             sys.executable, str(HERE / "qa_figure.py"), str(output),
             "--plan", str(plan_path), "--output", str(reports_dir / "qa-report.json"),
         ])
-        print(f"Raster illustration generated for mandatory human review -> {output}")
+        print(f"Raster illustration generated; scientific and human review remain pending -> {output}")
         return 0
     if "illustration" in panel_types:
         run_checked([

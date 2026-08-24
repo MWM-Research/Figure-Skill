@@ -241,6 +241,7 @@ def raster_illustration_panel(inventory: dict, brief: str, panel_id: str = "A") 
             "presentation as microscopy, medical, field, or instrument evidence",
         ],
         "backend": "byok-openai-compatible-images",
+        "canvas": {"width": 1024, "height": 1024},
         "human_review_required": True,
     }, questions
 

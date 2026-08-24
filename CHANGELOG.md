@@ -2,6 +2,20 @@
 
 All notable project changes are recorded here.
 
+## 0.6.0 - 2026-08-24
+
+### Added
+
+- Added plan-derived scientific review templates for generated raster figures.
+- Added separate technical, scientific, and human-review status gates.
+- Added exact raster canvas validation and plan/image hash binding.
+- Added explicit assessment and human approval commands through the self-bootstrapping launcher.
+
+### Changed
+
+- Generated raster output without completed scientific assessment and explicit human approval can no longer receive overall `pass`.
+- Provider output that differs from the approved canvas is recorded as a size mismatch and fails technical QA.
+
 ## 0.5.0 - 2026-08-24
 
 ### Added

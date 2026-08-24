@@ -74,6 +74,8 @@ Use a generated raster illustration panel only for explicitly illustrative outpu
   ],
   "visible_labels": [],
   "forbidden_content": ["invented measurements", "watermarks"],
+  "semantic_assertions": ["Exactly three response hotspots are visible"],
+  "canvas": {"width": 1024, "height": 768},
   "backend": "byok-openai-compatible-images",
   "human_review_required": true
 }

@@ -41,4 +41,33 @@ The adapter sends `model`, `prompt`, `size`, `quality`, and `output_format` to t
 
 ## Delivery status
 
-Successful API completion is not scientific approval. The provenance status remains `generated-awaiting-human-review`. Visually verify entity counts, relationships, prohibited additions, labels, resolution, and caption consistency before accepting the image.
+Successful API completion is not scientific approval. The provenance status remains `generated-awaiting-human-review`. Visually verify entity counts, relationships, prohibited additions, labels, exact canvas size, resolution, and caption consistency before accepting the image.
+
+QA reports three independent states:
+
+- `technical_status`: file integrity, provenance, and exact canvas contract
+- `scientific_status`: all plan-derived assertions are assessed and pass
+- `human_review_status`: a named human explicitly approves or rejects the assessed image
+
+Overall `pass` requires all three gates. Missing review produces `warn`; a size mismatch, failed scientific assertion, stale image/plan hash, or human rejection produces `fail`.
+
+Prepare a review template after generation:
+
+```powershell
+python "<SKILL_ROOT>/scripts/figure.py" review prepare `
+  --plan <output-root>/figure-plan.json `
+  --image <output-root>/panels/panel_a.png `
+  --output <output-root>/reports/scientific-review.json
+```
+
+Record an assessment by supplying every assertion result as `ID=pass|fail|uncertain`. After every assertion passes, record human approval only when the user explicitly confirms they reviewed the exact hashed image:
+
+```powershell
+python "<SKILL_ROOT>/scripts/figure.py" review human `
+  <output-root>/reports/scientific-review.json `
+  --decision approved `
+  --reviewer "<human reviewer>" `
+  --confirm-reviewed
+```
+
+Never infer human approval from API completion, an agent assessment, or a previous image version.
