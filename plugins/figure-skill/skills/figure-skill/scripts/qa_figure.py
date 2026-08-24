@@ -205,6 +205,29 @@ def verify_generation_provenance(path: Path) -> list[dict]:
         return [check("generation-provenance-readable", "fail", file=str(path), detail=str(exc))]
 
 
+def verify_annotation_provenance(path: Path, panel: dict) -> list[dict]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        output = Path(str(data.get("output", "")))
+        overlay = Path(str(data.get("overlay_source", "")))
+        valid_output = output.is_file() and data.get("output_sha256") == sha256(output)
+        valid_overlay = overlay.is_file() and data.get("overlay_source_sha256") == sha256(overlay)
+        planned_labels = sorted(str(value) for value in panel.get("visible_labels", []))
+        actual_labels = sorted(str(value) for value in data.get("visible_labels", []))
+        labels_match = bool(planned_labels) and planned_labels == actual_labels
+        canvas = panel.get("canvas", {})
+        canvas_match = data.get("canvas") == [canvas.get("width"), canvas.get("height")]
+        return [
+            check("annotation-provenance-readable", "pass", file=str(path)),
+            check("annotation-output-hash", "pass" if valid_output else "fail", output=str(output)),
+            check("annotation-source-hash", "pass" if valid_overlay else "fail", source=str(overlay)),
+            check("annotation-visible-labels", "pass" if labels_match else "fail", count=len(actual_labels)),
+            check("annotation-canvas", "pass" if canvas_match else "fail", value=data.get("canvas")),
+        ]
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        return [check("annotation-provenance-readable", "fail", file=str(path), detail=str(exc))]
+
+
 def run_qa(target: Path, plan: dict | None) -> dict:
     files = [target] if target.is_file() else sorted(path for path in target.rglob("*") if path.is_file())
     suffixes = {path.suffix.lower() for path in files}
@@ -274,6 +297,14 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             for path in generation_files:
                 technical_checks.extend(verify_generation_provenance(path))
             for panel in (panel for panel in plan.get("panels", []) if panel.get("type") == "raster-illustration"):
+                if panel.get("annotation_spec", {}).get("mode") == "deterministic-overlay":
+                    annotation_files = [path for path in files if path.name == "annotation-provenance.json"]
+                    technical_checks.append(check(
+                        "annotation-provenance-present", "pass" if len(annotation_files) == 1 else "fail",
+                        count=len(annotation_files),
+                    ))
+                    for path in annotation_files:
+                        technical_checks.extend(verify_annotation_provenance(path, panel))
                 panel_id = str(panel.get("id", "")).lower()
                 panel_path = next((path for path in files if path.name.lower() == f"panel_{panel_id}.png"), None)
                 canvas = panel.get("canvas", {})

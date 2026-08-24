@@ -60,6 +60,9 @@ class RasterIllustrationTests(unittest.TestCase):
         cls.adapter = load_module(
             "raster_illustration_adapter", SCRIPTS / "adapters" / "raster_illustration_adapter.py"
         )
+        cls.annotation = load_module(
+            "raster_annotation_backend", SCRIPTS / "backends" / "raster_annotation_backend.py"
+        )
         cls.planner = load_module("raster_plan_figure", SCRIPTS / "plan_figure.py")
         cls.qa = load_module("raster_qa_figure", SCRIPTS / "qa_figure.py")
         cls.reviewer = load_module("review_generated_figure", SCRIPTS / "review_generated_figure.py")
@@ -81,7 +84,26 @@ class RasterIllustrationTests(unittest.TestCase):
                 "scientific_description": "The encoder flows to the classifier.",
                 "entities": ["Encoder", "Classifier"],
                 "edges": [{"from": "Encoder", "to": "Classifier", "meaning": "data-flow"}],
-                "visible_labels": [], "forbidden_content": ["invented measurements"],
+                "visible_labels": [
+                    "3D Method Concept", "Encoder to Classifier", "Encoder", "Classifier",
+                    "Data flow", "Low response", "High response", "Conceptual illustration"
+                ],
+                "annotation_spec": {
+                    "mode": "deterministic-overlay", "allow_same_aspect_resize": True,
+                    "title": {"text": "3D Method Concept", "position": [0.5, 0.08]},
+                    "subtitle": {"text": "Encoder to Classifier", "position": [0.5, 0.15]},
+                    "labels": [
+                        {"text": "Encoder", "position": [0.25, 0.55], "anchor": [0.3, 0.5], "style": "pill"},
+                        {"text": "Classifier", "position": [0.75, 0.55], "anchor": [0.7, 0.5], "style": "pill"}
+                    ],
+                    "arrows": [{"text": "Data flow", "from": [0.35, 0.78], "to": [0.65, 0.78]}],
+                    "legend": {"position": [0.55, 0.9], "items": [
+                        {"label": "Low response", "color": "#443399"},
+                        {"label": "High response", "color": "#ddee33"}
+                    ]},
+                    "footer": {"text": "Conceptual illustration", "position": [0.5, 0.97]}
+                },
+                "forbidden_content": ["invented measurements"],
                 "canvas": {"width": 400, "height": 300},
             }],
         }
@@ -97,6 +119,8 @@ class RasterIllustrationTests(unittest.TestCase):
         self.assertEqual(plan["panels"][0]["style"], "3d-render")
         self.assertEqual(plan["panels"][0]["evidence_role"], "illustrative")
         self.assertEqual(plan["panels"][0]["canvas"], {"width": 1024, "height": 1024})
+        self.assertTrue(plan["panels"][0]["visible_labels"])
+        self.assertEqual(plan["panels"][0]["annotation_spec"]["mode"], "deterministic-overlay")
         self.assertFalse(plan["constraints"]["editable_source_required"])
 
     def test_manifest_is_redacted_and_key_is_environment_only(self):
@@ -115,6 +139,8 @@ class RasterIllustrationTests(unittest.TestCase):
             self.assertNotIn("Authorization", text)
             self.assertFalse(request["credential_available"])
             self.assertEqual(request["credential_environment"], "FIGURE_IMAGE_API_KEY")
+            self.assertIn("no visible text", request["prompt"])
+            self.assertNotIn("3D Method Concept", request["prompt"])
 
     def test_mock_generation_and_raster_qa_pass(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), ImageHandler)
@@ -133,10 +159,20 @@ class RasterIllustrationTests(unittest.TestCase):
                 provenance = self.adapter.execute_request(request, "unit-test-key", allow_insecure_http=True)
                 self.assertTrue(provenance["size_matches_request"])
                 self.assertEqual(provenance["requested_size"], [400, 300])
-                (root / "generation-provenance.json").write_text(
+                generation_path = root / "generation-provenance.json"
+                generation_path.write_text(
                     json.dumps(provenance, ensure_ascii=False, indent=2), encoding="utf-8"
                 )
                 self.assertTrue((root / "panel_a.png").is_file())
+                if self.annotation.browser_path() is None:
+                    self.skipTest("Edge/Chrome is required for raster annotation integration")
+                self.annotation.annotate(
+                    plan, plan["panels"][0], root / "panel_a.png", root,
+                    generation_path, root / "sources", root / "annotation-provenance.json",
+                )
+                self.assertTrue((root / "sources" / "panel_a_annotation.svg.txt").is_file())
+                annotation = json.loads((root / "annotation-provenance.json").read_text(encoding="utf-8"))
+                self.assertEqual(sorted(annotation["visible_labels"]), sorted(plan["panels"][0]["visible_labels"]))
                 (root / "final").mkdir()
                 shutil.copy2(root / "panel_a.png", root / "final" / "figure.png")
                 self.assertEqual(ImageHandler.authorization, "Bearer unit-test-key")

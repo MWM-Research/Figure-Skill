@@ -177,17 +177,27 @@ def main() -> int:
         if not args.execute_raster:
             print(f"Raster illustration request prepared for review -> {sources_dir}")
             return 0
+        raster_panel = raster_panels[0]
         generation_provenance = panels_dir / "generation-provenance.json"
+        if raster_panel.get("annotation_spec", {}).get("mode") == "deterministic-overlay":
+            panel_path = panels_dir / f"panel_{str(raster_panel.get('id', 'A')).lower()}.png"
+            run_checked([
+                sys.executable, str(HERE / "backends" / "raster_annotation_backend.py"), str(plan_path),
+                "--input", str(panel_path), "--output-dir", str(panels_dir),
+                "--source-dir", str(sources_dir),
+                "--annotation-provenance", str(provenance_dir / "annotation-provenance.json"),
+                "--generation-provenance", str(generation_provenance),
+            ])
         if generation_provenance.is_file():
             shutil.move(str(generation_provenance), provenance_dir / generation_provenance.name)
-        raster_panels = sorted(panels_dir.glob("panel_*.png"))
-        if len(raster_panels) != 1:
-            raise RuntimeError("raster-illustration route expected exactly one generated panel PNG")
-        shutil.copy2(raster_panels[0], final_dir / "figure.png")
+        generated_panel = panels_dir / f"panel_{str(raster_panel.get('id', 'A')).lower()}.png"
+        if not generated_panel.is_file():
+            raise RuntimeError("raster-illustration route did not produce the expected panel PNG")
+        shutil.copy2(generated_panel, final_dir / "figure.png")
         review_path = reports_dir / "scientific-review.json"
         run_checked([
             sys.executable, str(HERE / "review_generated_figure.py"), "prepare",
-            "--plan", str(plan_path), "--image", str(raster_panels[0]), "--output", str(review_path),
+            "--plan", str(plan_path), "--image", str(generated_panel), "--output", str(review_path),
         ])
         run_checked([
             sys.executable, str(HERE / "qa_figure.py"), str(output),

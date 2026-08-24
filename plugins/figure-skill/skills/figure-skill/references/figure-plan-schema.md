@@ -72,7 +72,20 @@ Use a generated raster illustration panel only for explicitly illustrative outpu
   "edges": [
     {"from": "Encoder", "to": "Retrieval", "meaning": "data-flow", "inferred": true}
   ],
-  "visible_labels": [],
+  "visible_labels": [
+    "3D method concept",
+    "Encoder · Retrieval · Classifier",
+    "Conceptual illustration — not quantitative evidence"
+  ],
+  "annotation_spec": {
+    "mode": "deterministic-overlay",
+    "title": {"text": "3D method concept", "position": [0.5, 0.055]},
+    "subtitle": {"text": "Encoder · Retrieval · Classifier", "position": [0.5, 0.095]},
+    "labels": [],
+    "arrows": [],
+    "legend": {},
+    "footer": {"text": "Conceptual illustration — not quantitative evidence", "position": [0.5, 0.965]}
+  },
   "forbidden_content": ["invented measurements", "watermarks"],
   "semantic_assertions": ["Exactly three response hotspots are visible"],
   "canvas": {"width": 1024, "height": 768},

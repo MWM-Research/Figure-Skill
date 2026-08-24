@@ -2,6 +2,20 @@
 
 All notable project changes are recorded here.
 
+## 0.7.0 - 2026-08-24
+
+### Added
+
+- Added a generic deterministic annotation backend for generated raster figures.
+- Added reviewed titles, key-concept subtitles, callouts, arrows, legends, and conceptual-evidence footers.
+- Added annotation provenance, overlay-source retention, visible-label allowlist validation, and annotation QA.
+
+### Changed
+
+- Raster image models are now instructed to generate no text; all visible text is rendered deterministically after generation.
+- New raster plans include a default explanatory title, key-concepts subtitle, and conceptual-illustration footer.
+- Same-aspect provider images can be explicitly resized to the approved canvas by the annotation stage; aspect-ratio changes are rejected.
+
 ## 0.6.0 - 2026-08-24
 
 ### Added

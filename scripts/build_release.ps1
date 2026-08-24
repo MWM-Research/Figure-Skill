@@ -95,6 +95,7 @@ try {
         "plugins/figure-skill/skills/figure-skill/scripts/figure.py",
         "plugins/figure-skill/skills/figure-skill/scripts/figure.ps1",
         "plugins/figure-skill/skills/figure-skill/scripts/adapters/raster_illustration_adapter.py",
+        "plugins/figure-skill/skills/figure-skill/scripts/backends/raster_annotation_backend.py",
         "plugins/figure-skill/skills/figure-skill/scripts/configure_image_key.ps1",
         "plugins/figure-skill/skills/figure-skill/scripts/review_generated_figure.py",
         "scripts/verify_release.ps1",

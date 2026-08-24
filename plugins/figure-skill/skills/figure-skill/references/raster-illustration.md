@@ -13,6 +13,8 @@ The reviewed `raster-illustration` panel must record:
 - forbidden content
 - the requested visual style
 - `human_review_required: true`
+- `annotation_spec.mode: deterministic-overlay`
+- an exact `visible_labels` allowlist matching every title, subtitle, callout, arrow label, legend label, and footer
 
 Keep `open_questions` non-empty until ambiguous entities and relationships are resolved. Generated content must never introduce measurements, statistics, causal claims, or experimental observations that are absent from authoritative inputs.
 
@@ -23,6 +25,40 @@ The team defaults are an OpenAI-compatible Images endpoint at `https://right.cod
 On Windows, run `scripts/configure_image_key.ps1` interactively. It does not print the key. Open a new Codex task afterward so the new user environment is inherited.
 
 Never put a key in a plan, prompt, generated artifact, request manifest, command-line argument, or repository file.
+
+## Deterministic text overlay
+
+The image-generation prompt always requests no visible text. After generation, `scripts/backends/raster_annotation_backend.py` scales a same-aspect provider image to the approved canvas and adds exact text through a deterministic SVG overlay rendered back to PNG.
+
+Every new raster plan receives a reviewed title, a key-concepts subtitle, and the footer `Conceptual illustration — not quantitative evidence`. Add normalized-position callouts, arrows, and legends when the image needs internal explanation. Coordinates use `[x, y]` values between `0` and `1`.
+
+```json
+{
+  "visible_labels": ["Temporal Attention", "Video Frames", "Data flow", "Low", "High"],
+  "annotation_spec": {
+    "mode": "deterministic-overlay",
+    "allow_same_aspect_resize": true,
+    "title": {"text": "Temporal Attention", "position": [0.5, 0.055]},
+    "subtitle": {"text": "Video Frames", "position": [0.5, 0.095]},
+    "labels": [
+      {"text": "Video Frames", "position": [0.08, 0.85], "style": "section"}
+    ],
+    "arrows": [
+      {"text": "Data flow", "from": [0.3, 0.88], "to": [0.7, 0.88]}
+    ],
+    "legend": {
+      "position": [0.72, 0.9],
+      "items": [
+        {"label": "Low", "color": "#443399"},
+        {"label": "High", "color": "#ddee33"}
+      ]
+    },
+    "footer": {"text": "Conceptual illustration — not quantitative evidence", "position": [0.5, 0.965]}
+  }
+}
+```
+
+The backend rejects text that is absent from `visible_labels`, invalid coordinates, non-hex legend colors, aspect-ratio changes, or missing annotation provenance. It preserves the unannotated PNG and the overlay source for revision.
 
 ## Execution
 

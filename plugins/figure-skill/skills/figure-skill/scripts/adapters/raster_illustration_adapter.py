@@ -56,7 +56,6 @@ def build_prompt(plan: dict, panel: dict) -> str:
         for edge in panel.get("edges", [])
         if edge.get("from") and edge.get("to")
     ]
-    visible_labels = [str(value) for value in panel.get("visible_labels", []) if str(value).strip()]
     forbidden = [str(value) for value in panel.get("forbidden_content", []) if str(value).strip()]
     sections = [
         "Create a generated scientific illustration for conceptual communication, not empirical evidence.",
@@ -65,7 +64,7 @@ def build_prompt(plan: dict, panel: dict) -> str:
         f"Scientific description: {panel.get('scientific_description', '')}",
         "Required entities: " + (", ".join(entities) if entities else "none explicitly listed"),
         "Required relationships: " + ("; ".join(relations) if relations else "none explicitly listed"),
-        "Visible text allowlist: " + (", ".join(visible_labels) if visible_labels else "no visible text"),
+        "Image-generation stage visible text: no visible text. Exact approved labels will be overlaid deterministically after generation.",
         "Forbidden content: " + ("; ".join(forbidden) if forbidden else "invented measurements, statistics, labels, or experimental observations"),
         "Do not add quantitative results, p-values, axes, microscopy evidence, medical findings, watermarks, or unapproved labels.",
         "Keep the composition suitable for later scientific annotation and human review.",
