@@ -42,6 +42,15 @@ UNCERTAINTY_COLUMN_WORDS = (
 HEATMAP_VALUE_WORDS = ("attention", "intensity", "value", "score", "count", "frequency", "probability", "weight")
 HEATMAP_X_WORDS = ("frame", "time", "epoch", "pred", "column", "col")
 HEATMAP_Y_WORDS = ("head", "actual", "true", "row", "class")
+ADVANCED_FORMS = (
+    (("box plot", "boxplot", "箱线图"), "box-plot"),
+    (("violin", "小提琴图"), "violin-plot"),
+    (("histogram", "直方图"), "histogram"),
+    (("density plot", "density curve", "密度图", "密度曲线"), "density-plot"),
+    (("confusion matrix", "混淆矩阵"), "confusion-matrix"),
+    (("roc",), "roc-curve"),
+    (("precision-recall", "precision recall", "pr curve", "pr曲线"), "pr-curve"),
+)
 
 
 def data_files(inventory: dict) -> list[dict]:
@@ -153,6 +162,22 @@ def choose_chart(columns: list[dict], brief: str) -> dict[str, Any]:
         }
 
     brief_lower = brief.lower()
+    advanced_form = next((form for words, form in ADVANCED_FORMS if any(word in brief_lower for word in words)), None)
+    if advanced_form:
+        base = {
+            "visual_form": advanced_form, "x": None, "y": None, "value": None, "group": None,
+            "error": None, "error_candidates": [], "error_requested": False, "unit": None,
+            "calculation": None, "actual": None, "predicted": None, "label": None, "score": None,
+        }
+        if advanced_form in {"box-plot", "violin-plot"}:
+            base.update({"x": categorical[0].get("name") if categorical else None, "y": measures[0].get("name"), "unit": infer_unit(str(measures[0].get("name", "")), measures[0].get("min"), measures[0].get("max")), "calculation": {"mode": "raw", "operation": "kde" if advanced_form == "violin-plot" else "box-summary", "parameters": {"bandwidth": "scott"} if advanced_form == "violin-plot" else {}}})
+        elif advanced_form in {"histogram", "density-plot"}:
+            base.update({"value": measures[0].get("name"), "group": categorical[0].get("name") if categorical else None, "calculation": {"mode": "raw", "operation": "histogram" if advanced_form == "histogram" else "kde", "parameters": {"strategy": "fd", "density": False} if advanced_form == "histogram" else {"bandwidth": "scott"}}})
+        elif advanced_form == "confusion-matrix":
+            base.update({"actual": categorical[0].get("name") if categorical else None, "predicted": categorical[1].get("name") if len(categorical) > 1 else None, "calculation": {"mode": "raw", "operation": "confusion-count", "parameters": {"normalization": "none"}}})
+        else:
+            base.update({"label": categorical[0].get("name") if categorical else None, "score": measures[0].get("name"), "group": categorical[1].get("name") if len(categorical) > 1 else None, "calculation": {"mode": "raw", "operation": "roc" if advanced_form == "roc-curve" else "pr", "parameters": {"positive_label": None, "compute_auc": False}}})
+        return base
     wants_heatmap = any(word in brief_lower for word in HEATMAP_WORDS)
     if wants_heatmap:
         value = min(measures, key=lambda column: heatmap_value_rank(column, brief))
@@ -241,15 +266,24 @@ def data_panels(inventory: dict, brief: str, start_index: int = 0) -> tuple[list
             "group": chart.get("group"),
             "error": chart.get("error"),
             "error_semantics": "symmetric-absolute" if chart.get("error") else None,
+            "uncertainty": None,
+            "calculation": chart.get("calculation"),
+            "actual": chart.get("actual"),
+            "predicted": chart.get("predicted"),
+            "label": chart.get("label"),
+            "score": chart.get("score"),
+            "axis": {"x_scale": "linear", "y_scale": "linear"},
             "unit": chart["unit"],
             "transform": "none",
             "backend": "matplotlib",
         }
         panels.append(panel)
-        if not chart["y"]:
+        if chart["visual_form"] in {"bar-chart", "line-chart", "scatter-plot", "box-plot", "violin-plot"} and not chart["y"]:
             questions.append(f"Choose a numeric metric for panel {panel_id} from {item.get('path')}.")
-        if not chart["x"]:
+        if chart["visual_form"] in {"bar-chart", "line-chart", "scatter-plot", "heatmap", "box-plot", "violin-plot"} and not chart["x"]:
             questions.append(f"Choose an x-axis or grouping column for panel {panel_id} from {item.get('path')}.")
+        if chart["visual_form"] in {"histogram", "density-plot"} and not chart.get("value"):
+            questions.append(f"Choose a numeric sample column for panel {panel_id} from {item.get('path')}.")
         if chart["visual_form"] == "heatmap" and not chart.get("value"):
             questions.append(f"Choose the numeric heatmap value column for panel {panel_id} from {item.get('path')}.")
         if len(chart.get("error_candidates", [])) > 1:
@@ -261,6 +295,10 @@ def data_panels(inventory: dict, brief: str, start_index: int = 0) -> tuple[list
             questions.append(
                 f"Provide or choose one non-negative symmetric error column for panel {panel_id}; none was found."
             )
+        if chart["visual_form"] in {"roc-curve", "pr-curve"}:
+            questions.append(f"Set calculation.parameters.positive_label for panel {panel_id} before approval.")
+        if chart["visual_form"] == "confusion-matrix" and (not chart.get("actual") or not chart.get("predicted")):
+            questions.append(f"Choose actual and predicted columns for panel {panel_id} before approval.")
     return panels, questions
 
 

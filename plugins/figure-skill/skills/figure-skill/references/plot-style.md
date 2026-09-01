@@ -11,3 +11,5 @@
 - For multi-series line/scatter plots, use long-form `x/group/y` data and require a unique `(x, group)` pair unless the plan defines an aggregation.
 - Use an error column only when the plan explicitly identifies it as a non-negative symmetric absolute uncertainty; record the source error value for every mark.
 - For Heatmaps, use long-form `x/y/value` data, require one source row per coordinate and a complete rectangular grid, and keep both cells and colorbar vector in SVG.
+- Keep advanced calculations explicit: record raw/precomputed mode, algorithm parameters, formula version, and all contributing source rows.
+- Default to linear axes and a zero bar baseline. Require a visible, reviewed justification for non-zero bar baselines or omitted axis intervals.

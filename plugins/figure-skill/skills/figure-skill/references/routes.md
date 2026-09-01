@@ -8,7 +8,7 @@ Choose for measured or computed results: performance curves, bar charts, ablatio
 - Require: source file mapping, exact filters/transforms, units, aggregation method, uncertainty definition, and deterministic seed when sampling.
 - Useful upstream pattern: CS Experiment Figure Studio.
 - Reject generated pixels as a substitute for data-driven marks.
-- Current deterministic backend: `scripts/backends/matplotlib_backend.py` for bar, multi-series line, scatter, and long-form Heatmap plots with per-mark/per-cell provenance and optional symmetric absolute error columns.
+- Current deterministic backend: `scripts/backends/matplotlib_backend.py` for bar, multi-series line, scatter, Heatmap, box, violin, histogram, density, confusion-matrix, ROC/PR, uncertainty, risky-axis, and shared-grid plots. Read [advanced-data-plots.md](advanced-data-plots.md) for their reviewed calculation contract.
 
 ## Illustration
 

@@ -45,6 +45,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 
 4. Confirm that the inferred route matches the evidence:
    - Use `data-plot` for CSV, TSV, JSON measurements, logs, metrics, statistics, and quantitative comparisons.
+   - For box, violin, histogram, density, confusion-matrix, ROC/PR, asymmetric uncertainty, risky axes, or shared subplots, read [references/advanced-data-plots.md](references/advanced-data-plots.md) and require explicit calculation/axis parameters before approval.
    - Use `illustration` for methods, architectures, mechanisms, workflows, and graphical abstracts without quantitative claims.
    - Use `raster-illustration` for explicitly generated photorealistic concepts, 3D-style scientific scenes, graphical abstracts, or cover art. Read [references/raster-illustration.md](references/raster-illustration.md) before planning or executing this route.
    - Use `hybrid-composite` when one Figure mixes raster imagery/evidence with vector modules, text, arrows, axes, or plots. Read [references/hybrid-representation.md](references/hybrid-representation.md), define a reviewed `representation_contract`, add `data-role` to every governed element, and run `audit_hybrid_svg.py` before QA.
@@ -71,7 +72,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 
 ## Deterministic backends
 
-- Use `scripts/backends/matplotlib_backend.py` for bar, line, scatter, and long-form Heatmap panels. It supports explicit multi-series groups and symmetric absolute error columns, rejects ambiguous or duplicate coordinates without an aggregation, keeps Heatmap SVG cells/colorbars vector, and records every mark or cell with its source row and columns.
+- Use `scripts/backends/matplotlib_backend.py` for bar, line, scatter, Heatmap, distribution, confusion-matrix, ROC/PR, uncertainty, and shared-grid panels. It keeps SVG marks vector and records identity or derived provenance for every mark.
 - Use `scripts/backends/svg_diagram_backend.py` for 2-10 node architecture/workflow diagrams with explicit edges.
 - Use `scripts/backends/native_edit_backend.py` only for reviewed SVG `replace_text` and allowlisted `set_attribute` operations. It requires exact selectors, retains the original, and records source/output hashes plus each applied operation.
 - Use `scripts/assemble_figure.py` for single, horizontal, vertical, or 2-column grid assembly. It preserves SVG elements and uses local Edge/Chrome for PDF/PNG export.

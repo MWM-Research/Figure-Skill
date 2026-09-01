@@ -83,6 +83,36 @@ Use long-form data for a deterministic Heatmap:
 
 Every `(x, y)` coordinate must map to exactly one source row and the long-form table must define a complete rectangular grid. Each cell is recorded in provenance as `x`, `y`, and `value`; SVG cells and the colorbar remain vector elements.
 
+Advanced deterministic forms use `visual_form` values `box-plot`, `violin-plot`, `histogram`, `density-plot`, `confusion-matrix`, `roc-curve`, or `pr-curve` and must include:
+
+```json
+{
+  "calculation": {
+    "mode": "precomputed | raw",
+    "operation": "box-summary | kde | histogram | confusion-count | roc | pr",
+    "parameters": {}
+  },
+  "uncertainty": {
+    "mode": "symmetric-delta | asymmetric-delta | bounds",
+    "error_column": "std",
+    "lower_column": "ci_lower",
+    "upper_column": "ci_upper"
+  },
+  "axis": {
+    "x_scale": "linear | log | symlog",
+    "y_scale": "linear | log | symlog",
+    "x_limits": null,
+    "y_limits": null,
+    "baseline_justification": null,
+    "break": {"axis": "y", "omit": [20, 80], "justification": "Reviewed reason"}
+  }
+}
+```
+
+Read [advanced-data-plots.md](advanced-data-plots.md) for required columns and calculation rules. Omit `uncertainty` or `axis` when they are not needed; do not populate high-risk options speculatively.
+
+A shared Matplotlib Figure uses a `data-plot-grid` panel with `layout.rows/columns`, `share_x`, `share_y`, `shared_legend`, and reviewed `subplots` that each follow the data-panel schema.
+
 Use an illustration panel like:
 
 ```json

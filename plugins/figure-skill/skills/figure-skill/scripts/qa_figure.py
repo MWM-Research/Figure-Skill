@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import math
 import re
@@ -21,6 +22,17 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 from review_generated_figure import validate_review  # noqa: E402
+
+
+def load_statistics_core():
+    path = HERE / "backends" / "statistics_core.py"
+    spec = importlib.util.spec_from_file_location("qa_statistics_core", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load statistics core: {path}")
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
+
+
+STATS = load_statistics_core()
 
 
 EDITABLE = {".svg", ".drawio", ".py", ".r", ".ipynb", ".ai", ".eps"}
@@ -132,41 +144,96 @@ def source_rows(path: Path) -> dict[int, dict[str, Any]]:
     raise ValueError(f"unsupported provenance source format: {suffix}")
 
 
-def verify_data_provenance(path: Path) -> list[dict]:
+def values_close(left: Any, right: Any) -> bool:
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(values_close(left[key], right[key]) for key in left)
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(values_close(a, b) for a, b in zip(left, right))
+    return equal_value(left, right)
+
+
+def plan_panel_index(plan: dict | None) -> dict[tuple[str, str | None], dict]:
+    result = {}
+    for panel in (plan or {}).get("panels", []):
+        panel_id = str(panel.get("id"))
+        result[(panel_id, None)] = panel
+        for subplot in panel.get("subplots", []):
+            result[(panel_id, str(subplot.get("id")))] = subplot
+    return result
+
+
+def recompute_derived(mark: dict, panel: dict, rows: dict[int, dict[str, Any]]) -> tuple[bool, str]:
+    derived = mark.get("derived")
+    if not isinstance(derived, dict): return True, ""
+    operation = derived.get("operation")
+    source_row_numbers = [int(value) for value in derived.get("source_rows", mark.get("source_rows", []))]
+    selected = [rows[number] for number in source_row_numbers if number in rows]
+    if len(selected) != len(source_row_numbers): return False, "derived source row missing"
+    try:
+        if operation == "box-summary":
+            column = str(panel["y"]); expected = STATS.box_summary([float(row[column]) for row in selected], source_row_numbers)
+        elif operation == "kde":
+            column = str(panel.get("value") or panel.get("y")); expected = STATS.kde([float(row[column]) for row in selected], source_row_numbers, bandwidth=derived["parameters"]["bandwidth"])
+        elif operation == "histogram":
+            column = str(panel.get("value") or panel.get("x")); expected = STATS.histogram([float(row[column]) for row in selected], source_row_numbers, derived["parameters"])
+        elif operation == "confusion-count":
+            actual, predicted = str(panel["actual"]), str(panel["predicted"]); expected = STATS.confusion_matrix([str(row[actual]) for row in selected], [str(row[predicted]) for row in selected], source_row_numbers, derived["parameters"]["normalization"])
+        elif operation in {"roc", "pr"}:
+            label, score = str(panel["label"]), str(panel["score"]); expected = STATS.binary_curve([row[label] for row in selected], [float(row[score]) for row in selected], source_row_numbers, derived["parameters"]["positive_label"], operation, bool(derived["parameters"].get("compute_auc")))
+        else:
+            return False, f"unsupported derived operation {operation}"
+        return values_close(expected, derived), "" if values_close(expected, derived) else f"derived {operation} mismatch"
+    except (KeyError, TypeError, ValueError) as exc:
+        return False, str(exc)
+
+
+def verify_data_provenance(path: Path, plan: dict | None = None) -> list[dict]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         return [check("provenance-readable", "fail", file=str(path), detail=str(exc))]
     checks = [check("provenance-readable", "pass", file=str(path))]
+    panel_lookup = plan_panel_index(plan)
     for panel in data.get("panels", []):
         panel_id = panel.get("panel")
-        source = Path(str(panel.get("source_file", "")))
-        if not source.is_file():
-            checks.append(check("provenance-source-exists", "fail", panel=panel_id, source=str(source)))
-            continue
-        expected_hash = panel.get("source_sha256")
-        hash_status = "pass" if expected_hash and sha256(source) == expected_hash else "fail"
-        checks.append(check("provenance-source-hash", hash_status, panel=panel_id, source=str(source)))
+        sources = {str(panel.get("source_file", "")): panel.get("source_sha256")} if panel.get("source_file") else {str(item.get("file")): item.get("sha256") for item in panel.get("sources", [])}
+        if not sources:
+            checks.append(check("provenance-source-exists", "fail", panel=panel_id, source="")); continue
+        source_rows_cache = {}
+        for source_text, expected_hash in sources.items():
+            source = Path(source_text)
+            checks.append(check("provenance-source-exists", "pass" if source.is_file() else "fail", panel=panel_id, source=str(source)))
+            if source.is_file():
+                checks.append(check("provenance-source-hash", "pass" if expected_hash and sha256(source) == expected_hash else "fail", panel=panel_id, source=str(source)))
+                source_rows_cache[str(source)] = source_rows(source)
         try:
-            rows = source_rows(source)
             mismatches = []
+            derived_mismatches = []
             for mark in panel.get("marks", []):
-                row_number = int(mark.get("source_row"))
-                row = rows.get(row_number)
-                if row is None:
-                    mismatches.append(f"missing source row {row_number}")
-                    continue
-                for axis in ("x", "y", "group", "value", "error"):
-                    value = mark.get(axis, {})
-                    if not value:
-                        continue
-                    column = value.get("column")
-                    if column not in row or not equal_value(row.get(column), value.get("value")):
-                        mismatches.append(f"row {row_number} column {column}")
+                source_text = str(mark.get("source_file") or panel.get("source_file"))
+                rows = source_rows_cache.get(source_text, {})
+                row_numbers = [int(mark["source_row"])] if mark.get("source_row") is not None else [int(value) for value in mark.get("source_rows", [])]
+                if any(number not in rows for number in row_numbers): mismatches.append(f"missing source row(s) {row_numbers}")
+                if mark.get("source_row") is not None:
+                    row_number = int(mark["source_row"]); row = rows.get(row_number, {})
+                    for axis in ("x", "y", "group", "value", "error", "x2"):
+                        value = mark.get(axis, {})
+                        if not value or value.get("column") is None: continue
+                        column = value.get("column")
+                        if column not in row or not equal_value(row.get(column), value.get("value")): mismatches.append(f"row {row_number} column {column}")
+                    uncertainty = mark.get("uncertainty", {})
+                    for label, column in uncertainty.get("columns", {}).items():
+                        expected = uncertainty.get("values", {}).get(label)
+                        if column not in row or not equal_value(row.get(column), expected): mismatches.append(f"row {row_number} column {column}")
+                plan_panel = panel_lookup.get((str(panel_id), str(mark.get("subplot")) if mark.get("subplot") is not None else None))
+                if mark.get("derived") and plan_panel:
+                    valid, detail = recompute_derived(mark, plan_panel, rows)
+                    if not valid: derived_mismatches.append(detail)
             checks.append(check(
                 "provenance-mark-values", "fail" if mismatches else "pass", panel=panel_id,
                 detail=", ".join(mismatches) if mismatches else f"verified {len(panel.get('marks', []))} marks",
             ))
+            checks.append(check("provenance-derived-values", "fail" if derived_mismatches else "pass", panel=panel_id, detail=", ".join(dict.fromkeys(derived_mismatches)) if derived_mismatches else "verified"))
         except (OSError, csv.Error, ValueError, TypeError) as exc:
             checks.append(check("provenance-mark-values", "fail", panel=panel_id, detail=str(exc)))
     return checks
@@ -299,7 +366,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             provenance_files = [path for path in files if path.name in {"data-provenance.json", "provenance.json"}]
             technical_checks.append(check("data-provenance-present", "pass" if provenance_files else "fail"))
             for path in provenance_files:
-                technical_checks.extend(verify_data_provenance(path))
+                technical_checks.extend(verify_data_provenance(path, plan))
         has_edit_panels = any(panel.get("type") == "edit" for panel in plan.get("panels", []))
         if has_edit_panels:
             edit_files = [path for path in files if path.name == "edit-provenance.json"]
