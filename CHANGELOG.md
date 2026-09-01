@@ -2,6 +2,27 @@
 
 All notable project changes are recorded here.
 
+## 0.11.0 - 2026-09-01
+
+### Added
+
+- Added deterministic Box, Violin, Histogram, Density, Confusion Matrix, ROC, and PR plots with explicit raw/precomputed calculation modes.
+- Added asymmetric uncertainty, bounds, reviewed log/symlog axes, explicit axis breaks, non-zero baseline guards, and shared data-plot grids.
+- Added formula-versioned derived provenance and QA recomputation for advanced statistics.
+- Added exact-ID SVG translation/resize plus metadata-backed node, edge, alignment, distribution, overlap repair, and layered auto-layout operations.
+- Added graph metadata to native SVG diagrams and schema-2.0 atomic edit provenance.
+- Added five offline Showcase cases with structural and tolerant visual regression, diff artifacts, and release evidence.
+
+### Changed
+
+- Release verification now requires all Showcase cases to pass without Provider credentials or external network access.
+- Release packages include Showcase manifests, regression summary, and contact sheet without bundling the full large Showcase tree.
+
+### Validation
+
+- 81 automated tests cover core workflows, advanced statistics, SVG semantic editing, and visual-regression failure modes.
+- Five Showcase cases rebuild or reproduce from frozen inputs with no paid-service calls.
+
 ## 0.10.0 - 2026-09-01
 
 ### Added

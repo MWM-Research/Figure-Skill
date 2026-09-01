@@ -2,7 +2,7 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.10.0`
+Current internal release: `v0.11.0`
 
 ## 测试案例展示
 
@@ -51,9 +51,9 @@ codex plugin add figure-skill@mwm-research
 - CSV、TSV、JSON、JSONL、XLSX 数据画像
 - Methods 文本中的常见架构实体和显式数据流提取
 - `illustration`、`data-plot`、`edit`、`composite` 路由
-- 单组/多组柱状图、多系列折线图、散点图、全矢量 Heatmap、对称误差线和逐数值/逐 cell provenance
+- 柱状图、折线图、散点图、全矢量 Heatmap、Box/Violin/Histogram/Density、Confusion Matrix、ROC/PR、对称/非对称不确定性和逐值/逐 cell/派生统计 provenance
 - 2-10 节点的可编辑 SVG 与 `.drawio` 架构图
-- 经过人工确认的 SVG 精确文本/属性编辑及逐操作 provenance
+- 经过人工确认的 SVG 精确 ID 编辑、节点/边语义编辑、确定性布局及原子逐操作 provenance
 - 单面板、横向、纵向和 2 列网格组装
 - SVG、PDF、PNG 导出及结构/来源 QA
 - Happy Figure、PaperBanana、AutoFigure-Edit 的安全隔离适配器
@@ -148,7 +148,7 @@ python "$FigureSkill\scripts\figure.py" workflow `
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.10.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.11.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

@@ -99,6 +99,7 @@ $ScanTargets = @(
     (Join-Path $ProjectRoot "plugins"),
     (Join-Path $ProjectRoot ".agents"),
     (Join-Path $ProjectRoot "scripts"),
+    (Join-Path $ProjectRoot "showcase"),
     (Join-Path $ProjectRoot "README.md"),
     (Join-Path $ProjectRoot "CHANGELOG.md"),
     (Join-Path $ProjectRoot "THIRD_PARTY_NOTICES.md")

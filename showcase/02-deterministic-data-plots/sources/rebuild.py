@@ -11,6 +11,7 @@ plan = json.loads((args.case / "figure-plan.json").read_text(encoding="utf-8"));
 inputs = args.case / "sources"; panels = args.output / "panels"; final = args.output / "final"; provenance = args.output / "provenance"; reports = args.output / "reports"
 for path in (panels, final, provenance, reports): path.mkdir(parents=True, exist_ok=True)
 result = backend.render_grid_panel(panel, inputs, panels, ("svg", "pdf", "png"))
+svg_path = panels / "panel_a.svg"; svg_path.write_text("\n".join(line.rstrip() for line in svg_path.read_text(encoding="utf-8").splitlines()) + "\n", encoding="utf-8")
 for source in result.get("sources", []): source["file"] = "sources/samples.csv"
 for mark in result.get("marks", []):
     if "source_file" in mark: mark["source_file"] = "sources/samples.csv"
