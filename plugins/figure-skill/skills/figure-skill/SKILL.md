@@ -71,7 +71,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 
 ## Deterministic backends
 
-- Use `scripts/backends/matplotlib_backend.py` for bar, line, and scatter panels. It rejects duplicate categories without an explicit aggregation and records every plotted mark with source row and column.
+- Use `scripts/backends/matplotlib_backend.py` for bar, line, scatter, and long-form Heatmap panels. It supports explicit multi-series groups and symmetric absolute error columns, rejects ambiguous or duplicate coordinates without an aggregation, keeps Heatmap SVG cells/colorbars vector, and records every mark or cell with its source row and columns.
 - Use `scripts/backends/svg_diagram_backend.py` for 2-10 node architecture/workflow diagrams with explicit edges.
 - Use `scripts/backends/native_edit_backend.py` only for reviewed SVG `replace_text` and allowlisted `set_attribute` operations. It requires exact selectors, retains the original, and records source/output hashes plus each applied operation.
 - Use `scripts/assemble_figure.py` for single, horizontal, vertical, or 2-column grid assembly. It preserves SVG elements and uses local Edge/Chrome for PDF/PNG export.

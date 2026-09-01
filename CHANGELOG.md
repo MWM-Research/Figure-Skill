@@ -2,6 +2,26 @@
 
 All notable project changes are recorded here.
 
+## 0.10.0 - 2026-09-01
+
+### Added
+
+- Added deterministic long-form Heatmap rendering with vector cells and vector colorbars.
+- Added multi-series line/scatter rendering from explicit grouping columns.
+- Added symmetric absolute error bars for bar, line, and scatter plots.
+- Added per-cell Heatmap provenance and error-column provenance with QA verification.
+
+### Changed
+
+- Data planning now recognizes Heatmap/confusion-matrix, multi-series line, and explicit uncertainty requests.
+- Duplicate Heatmap coordinates, incomplete Heatmap grids, duplicate per-series x values, negative uncertainty, and ambiguous uncertainty columns now block formal rendering.
+- Loopback raster-adapter tests bypass configured HTTP proxies to remain local and deterministic.
+- Release verification records the discovered test count instead of a hard-coded value.
+
+### Validation
+
+- 59 automated tests cover the expanded planner, renderer, provenance, QA, and local mock boundary.
+
 ## 0.9.0 - 2026-08-24
 
 ### Added

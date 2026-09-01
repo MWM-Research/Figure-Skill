@@ -1,6 +1,6 @@
 {
   "name": "figure-skill",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Evidence-aware scientific figures with managed PaperBanana and AutoFigure backends, provenance, and QA.",
   "author": {
     "name": "MWM-Research",

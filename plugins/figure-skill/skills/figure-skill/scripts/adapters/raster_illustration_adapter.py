@@ -136,6 +136,15 @@ def decode_response(payload: dict) -> bytes:
     raise RuntimeError("provider response contained neither b64_json nor url")
 
 
+def open_http_request(request: urllib.request.Request, endpoint: str, timeout: int):
+    """Bypass configured proxies only for explicit loopback test/local endpoints."""
+    hostname = urllib.parse.urlparse(endpoint).hostname
+    if hostname in {"127.0.0.1", "localhost", "::1"}:
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        return opener.open(request, timeout=timeout)
+    return urllib.request.urlopen(request, timeout=timeout)
+
+
 def execute_request(request: dict, api_key: str, allow_insecure_http: bool = False) -> dict:
     endpoint = str(request["endpoint"])
     validate_public_endpoint(endpoint, allow_insecure_http)
@@ -147,7 +156,7 @@ def execute_request(request: dict, api_key: str, allow_insecure_http: bool = Fal
         method="POST",
     )
     try:
-        with urllib.request.urlopen(http_request, timeout=300) as response:
+        with open_http_request(http_request, endpoint, timeout=300) as response:
             response_bytes = response.read(MAX_IMAGE_BYTES + 1)
             request_id = response.headers.get("x-request-id")
     except urllib.error.HTTPError as exc:

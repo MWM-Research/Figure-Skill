@@ -8,3 +8,6 @@
 - Use restrained colors, dark outlines, visible contrast, and non-color cues when multiple series are added.
 - Save SVG, PDF, PNG, the rendering source, a render recipe, and per-mark provenance.
 - For grouped bars, require a unique `(x, group)` pair per source row unless the plan defines an aggregation.
+- For multi-series line/scatter plots, use long-form `x/group/y` data and require a unique `(x, group)` pair unless the plan defines an aggregation.
+- Use an error column only when the plan explicitly identifies it as a non-negative symmetric absolute uncertainty; record the source error value for every mark.
+- For Heatmaps, use long-form `x/y/value` data, require one source row per coordinate and a complete rectangular grid, and keep both cells and colorbar vector in SVG.

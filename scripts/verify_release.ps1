@@ -50,7 +50,9 @@ if (Test-Path -LiteralPath (Join-Path $AutoRepo "autofigure2.py")) {
 if ($LASTEXITCODE -ne 0) { throw "core environment check failed" }
 $Environment = Get-Content -Raw -Encoding UTF8 $EnvironmentReport | ConvertFrom-Json
 
-& $Python -m unittest discover -s (Join-Path $SkillRoot "tests") -v
+$TestRoot = Join-Path $SkillRoot "tests"
+$AutomatedTestCount = [int](& $Python -c "import sys, unittest; print(unittest.defaultTestLoader.discover(sys.argv[1]).countTestCases())" $TestRoot | Select-Object -Last 1)
+& $Python -m unittest discover -s $TestRoot -v
 if ($LASTEXITCODE -ne 0) { throw "automated tests failed" }
 
 $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME ".codex" }
@@ -106,7 +108,7 @@ $Result = [ordered]@{
     verified_at = (Get-Date).ToString("o")
     python = $Environment.python
     core = $Environment.core
-    automated_tests = 50
+    automated_tests = $AutomatedTestCount
     skill_validation = "pass"
     plugin_validation = "pass"
     marketplace_validation = "pass"

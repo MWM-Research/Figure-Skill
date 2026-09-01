@@ -233,6 +233,64 @@ class PlannerTests(unittest.TestCase):
         self.assertEqual(panel["y"], "petal_length_cm")
         self.assertEqual(panel["title"], "petal_length_cm vs petal_width_cm")
 
+    def test_heatmap_plan_uses_long_form_axes_and_value(self):
+        inventory = self.inventory_for({
+            "attention.csv": (
+                "Head,Frame,Attention\n"
+                "H1,F1,0.1\nH1,F2,0.8\nH2,F1,0.2\nH2,F2,0.9\n"
+            )
+        })
+        plan = plan_figure.build_plan(inventory, "Attention heatmap by Head and Frame", "data-plot")
+        panel = plan["panels"][0]
+        self.assertEqual(panel["visual_form"], "heatmap")
+        self.assertEqual(panel["x"], "Frame")
+        self.assertEqual(panel["y"], "Head")
+        self.assertEqual(panel["value"], "Attention")
+        self.assertEqual(plan["open_questions"], [])
+
+    def test_multiseries_line_plan_tracks_explicit_error_column(self):
+        inventory = self.inventory_for({
+            "training.csv": (
+                "epoch,method,accuracy,std\n"
+                "1,Baseline,0.70,0.03\n1,Ours,0.76,0.02\n"
+                "2,Baseline,0.74,0.02\n2,Ours,0.82,0.01\n"
+            )
+        })
+        plan = plan_figure.build_plan(
+            inventory, "Multi-series line chart of accuracy with error bars", "data-plot"
+        )
+        panel = plan["panels"][0]
+        self.assertEqual(panel["visual_form"], "line-chart")
+        self.assertEqual(panel["x"], "epoch")
+        self.assertEqual(panel["y"], "accuracy")
+        self.assertEqual(panel["group"], "method")
+        self.assertEqual(panel["error"], "std")
+        self.assertEqual(panel["error_semantics"], "symmetric-absolute")
+        self.assertEqual(plan["open_questions"], [])
+
+    def test_ambiguous_error_columns_require_review(self):
+        inventory = self.inventory_for({
+            "results.csv": "method,accuracy,std,sem\nBaseline,0.70,0.03,0.01\nOurs,0.82,0.02,0.01\n"
+        })
+        plan = plan_figure.build_plan(
+            inventory, "Accuracy bar chart with error bars", "data-plot"
+        )
+        panel = plan["panels"][0]
+        self.assertIsNone(panel["error"])
+        self.assertTrue(any("Choose exactly one symmetric error column" in item for item in plan["open_questions"]))
+
+    def test_precision_is_not_misclassified_as_ci_and_missing_error_blocks_approval(self):
+        inventory = self.inventory_for({
+            "results.csv": "method,precision\nBaseline,0.70\nOurs,0.82\n"
+        })
+        plan = plan_figure.build_plan(
+            inventory, "Precision bar chart with confidence interval error bars", "data-plot"
+        )
+        panel = plan["panels"][0]
+        self.assertEqual(panel["y"], "precision")
+        self.assertIsNone(panel["error"])
+        self.assertTrue(any("none was found" in item for item in plan["open_questions"]))
+
     def test_edit_plan_requires_explicit_operations(self):
         inventory = self.inventory_for({
             "existing.svg": '<svg xmlns="http://www.w3.org/2000/svg"><text>Encoder</text></svg>'
@@ -376,6 +434,92 @@ class MatplotlibBackendTests(unittest.TestCase):
             self.assertTrue(all(mark["group"]["column"] == "method" for mark in provenance["marks"]))
             self.assertEqual({mark["group"]["value"] for mark in provenance["marks"]}, {"Baseline", "Proposed"})
 
+    def test_heatmap_is_vector_and_tracks_every_cell(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "output"
+            output.mkdir()
+            (root / "attention.csv").write_text(
+                "Head,Frame,Attention\n"
+                "H1,F1,0.1\nH1,F2,0.8\nH1,F3,0.2\n"
+                "H2,F1,0.3\nH2,F2,0.9\nH2,F3,0.4\n",
+                encoding="utf-8",
+            )
+            panel = {
+                "id": "A", "title": "Attention heatmap", "source_files": ["attention.csv"],
+                "visual_form": "heatmap", "x": "Frame", "y": "Head", "value": "Attention",
+                "unit": "fraction", "transform": "none",
+            }
+            provenance = self.backend.render_panel(panel, root, output, ("svg", "png"))
+            self.assertEqual(len(provenance["marks"]), 6)
+            self.assertTrue(all(mark["value"]["column"] == "Attention" for mark in provenance["marks"]))
+            svg = (output / "panel_a.svg").read_text(encoding="utf-8")
+            self.assertNotIn("<image", svg)
+            self.assertIn("H1", svg)
+            self.assertIn("F3", svg)
+
+    def test_heatmap_rejects_duplicate_coordinates(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "output"
+            output.mkdir()
+            (root / "attention.csv").write_text(
+                "Head,Frame,Attention\nH1,F1,0.1\nH1,F1,0.8\n",
+                encoding="utf-8",
+            )
+            panel = {
+                "id": "A", "source_files": ["attention.csv"], "visual_form": "heatmap",
+                "x": "Frame", "y": "Head", "value": "Attention",
+            }
+            with self.assertRaisesRegex(ValueError, "duplicate heatmap coordinate"):
+                self.backend.render_panel(panel, root, output, ("svg",))
+
+    def test_multiseries_line_tracks_groups_and_errors(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "output"
+            output.mkdir()
+            (root / "training.csv").write_text(
+                "epoch,method,accuracy,std\n"
+                "1,Baseline,0.70,0.03\n2,Baseline,0.74,0.02\n"
+                "1,Ours,0.76,0.02\n2,Ours,0.82,0.01\n",
+                encoding="utf-8",
+            )
+            panel = {
+                "id": "A", "title": "Accuracy", "source_files": ["training.csv"],
+                "visual_form": "line-chart", "x": "epoch", "y": "accuracy",
+                "group": "method", "error": "std", "error_semantics": "symmetric-absolute",
+            }
+            provenance = self.backend.render_panel(panel, root, output, ("svg",))
+            self.assertEqual(len(provenance["marks"]), 4)
+            self.assertEqual({mark["group"]["value"] for mark in provenance["marks"]}, {"Baseline", "Ours"})
+            self.assertEqual([mark["error"]["value"] for mark in provenance["marks"]], [0.03, 0.02, 0.02, 0.01])
+            self.assertTrue(all(mark["error"]["column"] == "std" for mark in provenance["marks"]))
+
+    def test_bar_error_values_are_provenanced_and_must_be_nonnegative(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "output"
+            output.mkdir()
+            source = root / "results.csv"
+            source.write_text(
+                "method,accuracy,std\nBaseline,0.70,0.03\nOurs,0.82,0.02\n",
+                encoding="utf-8",
+            )
+            panel = {
+                "id": "A", "title": "Accuracy", "source_files": ["results.csv"],
+                "visual_form": "bar-chart", "x": "method", "y": "accuracy",
+                "error": "std", "error_semantics": "symmetric-absolute",
+            }
+            provenance = self.backend.render_panel(panel, root, output, ("svg",))
+            self.assertEqual([mark["error"]["value"] for mark in provenance["marks"]], [0.03, 0.02])
+            source.write_text(
+                "method,accuracy,std\nBaseline,0.70,-0.03\nOurs,0.82,0.02\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "negative uncertainty"):
+                self.backend.render_panel(panel, root, output, ("svg",))
+
 
 class DiagramAndAssemblyTests(unittest.TestCase):
     @classmethod
@@ -476,6 +620,36 @@ class QualityAssuranceTests(unittest.TestCase):
                 "constraints": {"forbid_invented_quantitative_claims": True},
             }
             self.assertEqual(self.qa.run_qa(root, plan)["status"], "pass")
+
+    def test_qa_verifies_heatmap_value_and_error_columns(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "attention.csv"
+            source.write_text(
+                "Head,Frame,Attention,error\nH1,F1,0.8,0.02\nH1,F2,0.9,0.01\n",
+                encoding="utf-8",
+            )
+            panel = {
+                "id": "A", "type": "data-plot", "title": "Attention",
+                "source_files": ["attention.csv"], "visual_form": "heatmap",
+                "x": "Frame", "y": "Head", "value": "Attention", "transform": "none",
+            }
+            provenance = self.backend.render_panel(panel, root, root, ("svg", "pdf", "png"))
+            provenance["marks"][0]["error"] = {
+                "column": "error", "value": 999.0, "semantics": "symmetric-absolute"
+            }
+            (root / "panel_a_source.py").write_text("# source\n", encoding="utf-8")
+            (root / "data-provenance.json").write_text(
+                json.dumps({"schema_version": "1.0", "panels": [provenance]}), encoding="utf-8"
+            )
+            plan = {
+                "panels": [panel], "open_questions": [], "review_status": "approved",
+                "constraints": {"forbid_invented_quantitative_claims": True},
+            }
+            report = self.qa.run_qa(root, plan)
+            self.assertEqual(report["status"], "fail")
+            mismatch = next(item for item in report["checks"] if item["check"] == "provenance-mark-values")
+            self.assertIn("column error", mismatch["detail"])
 
 
 class EndToEndWorkflowTests(unittest.TestCase):

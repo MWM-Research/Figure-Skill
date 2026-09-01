@@ -78,6 +78,20 @@ def finite_number(value: Any, *, column: str, row: int) -> float:
     return number
 
 
+def error_number(value: Any, *, column: str, row: int) -> float:
+    number = finite_number(value, column=column, row=row)
+    if number < 0:
+        raise ValueError(f"negative uncertainty in column {column!r}, source row {row}: {value!r}")
+    return number
+
+
+def record_error(record: dict[str, Any], panel: dict) -> float | None:
+    error_name = panel.get("error")
+    if not error_name:
+        return None
+    return error_number(record.get(error_name), column=str(error_name), row=int(record["__source_row__"]))
+
+
 def panel_records(panel: dict, input_root: Path) -> tuple[Path, list[dict[str, Any]]]:
     sources = panel.get("source_files") or []
     if len(sources) != 1:
@@ -101,6 +115,7 @@ def plot_bar(ax, panel: dict, records: list[dict[str, Any]]) -> list[dict]:
     if not group_name and len(set(labels)) != len(labels):
         raise ValueError(f"panel {panel['id']} has duplicate {x_name!r} categories; define an aggregation before plotting")
     values = [finite_number(record.get(y_name), column=y_name, row=int(record["__source_row__"])) for record in records]
+    errors = [record_error(record, panel) for record in records]
     marks = []
     if group_name:
         groups = [str(record.get(group_name, "")) for record in records]
@@ -111,33 +126,49 @@ def plot_bar(ax, panel: dict, records: list[dict[str, Any]]) -> list[dict]:
             raise ValueError(f"panel {panel['id']} has duplicate ({x_name}, {group_name}) pairs; define an aggregation")
         x_labels = list(dict.fromkeys(labels))
         group_labels = list(dict.fromkeys(groups))
-        lookup = {pair: (value, record) for pair, value, record in zip(pairs, values, records)}
+        lookup = {pair: (value, error, record) for pair, value, error, record in zip(pairs, values, errors, records)}
         width = 0.8 / len(group_labels)
         palette = ["#b8b8b8", "#3f6f8f", "#7f7f7f", "#7b9e87", "#8b6f8f"]
         for group_index, group in enumerate(group_labels):
             positions = [index - 0.4 + width / 2 + group_index * width for index in range(len(x_labels))]
-            group_values = [lookup.get((label, group), (math.nan, None))[0] for label in x_labels]
+            group_values = [lookup.get((label, group), (math.nan, None, None))[0] for label in x_labels]
+            group_errors = [lookup.get((label, group), (math.nan, math.nan, None))[1] for label in x_labels]
             bars = ax.bar(
                 positions, group_values, width=width, label=group,
                 color=palette[group_index % len(palette)], edgecolor="#222222", linewidth=0.8,
+                yerr=group_errors if panel.get("error") else None,
+                capsize=3 if panel.get("error") else 0,
             )
-            for bar, label, value in zip(bars, x_labels, group_values):
+            for bar, label, value, error in zip(bars, x_labels, group_values, group_errors):
                 if not math.isnan(value):
                     ax.text(bar.get_x() + bar.get_width() / 2, value, f"{value:g}", ha="center", va="bottom", fontsize=7.5)
-                    record = lookup[(label, group)][1]
-                    marks.append({"source_row": int(record["__source_row__"]), "x": label, "group": group, "y": value})
+                    record = lookup[(label, group)][2]
+                    mark = {"source_row": int(record["__source_row__"]), "x": label, "group": group, "y": value}
+                    if error is not None:
+                        mark["error"] = error
+                    marks.append(mark)
         ax.set_xticks(range(len(x_labels)), x_labels)
         ax.legend(title=group_name, frameon=False)
     else:
         colors = ["#b8b8b8"] * len(values)
         if colors:
             colors[-1] = "#3f6f8f"
-        bars = ax.bar(labels, values, width=0.62, color=colors, edgecolor="#222222", linewidth=0.9)
+        bars = ax.bar(
+            labels, values, width=0.62, color=colors, edgecolor="#222222", linewidth=0.9,
+            yerr=errors if panel.get("error") else None, capsize=3 if panel.get("error") else 0,
+        )
         for bar, value in zip(bars, values):
             ax.text(bar.get_x() + bar.get_width() / 2, value, f"{value:g}", ha="center", va="bottom", fontsize=8.5)
-        marks = [{"source_row": int(record["__source_row__"]), "x": label, "y": value} for record, label, value in zip(records, labels, values)]
-    lower = min(0.0, min(values) * 1.16)
-    upper = max(0.0, max(values) * 1.16)
+        marks = []
+        for record, label, value, error in zip(records, labels, values, errors):
+            mark = {"source_row": int(record["__source_row__"]), "x": label, "y": value}
+            if error is not None:
+                mark["error"] = error
+            marks.append(mark)
+    lower_values = [value - (error or 0.0) for value, error in zip(values, errors)]
+    upper_values = [value + (error or 0.0) for value, error in zip(values, errors)]
+    lower = min(0.0, min(lower_values) * 1.16)
+    upper = max(0.0, max(upper_values) * 1.16)
     if lower == upper:
         upper = lower + 1.0
     ax.set_ylim(lower, upper)
@@ -151,24 +182,105 @@ def plot_bar(ax, panel: dict, records: list[dict[str, Any]]) -> list[dict]:
 
 def plot_xy(ax, panel: dict, records: list[dict[str, Any]], *, scatter: bool) -> list[dict]:
     x_name, y_name = panel["x"], panel["y"]
-    points = []
+    group_name = panel.get("group")
+    grouped: dict[str, list[tuple[float, float, float | None, int]]] = {}
     for record in records:
         row = int(record["__source_row__"])
         x_value = finite_number(record.get(x_name), column=x_name, row=row)
         y_value = finite_number(record.get(y_name), column=y_name, row=row)
-        points.append((x_value, y_value, row))
-    points.sort(key=lambda point: point[0])
-    xs, ys = [point[0] for point in points], [point[1] for point in points]
-    if scatter:
-        ax.scatter(xs, ys, s=34, color="#3f6f8f", edgecolor="#222222", linewidth=0.6)
-    else:
-        ax.plot(xs, ys, marker="o", color="#3f6f8f", linewidth=1.6, markersize=4.5)
+        error = record_error(record, panel)
+        group = str(record.get(group_name, "")) if group_name else ""
+        if group_name and not group:
+            raise ValueError(f"panel {panel['id']} contains an empty {group_name!r} group")
+        grouped.setdefault(group, []).append((x_value, y_value, error, row))
+    palette = ["#3f6f8f", "#7b9e87", "#8b6f8f", "#c17c4f", "#6b7280"]
+    marks = []
+    for group_index, (group, points) in enumerate(grouped.items()):
+        points.sort(key=lambda point: point[0])
+        xs = [point[0] for point in points]
+        if len(set(xs)) != len(xs):
+            scope = f" within group {group!r}" if group_name else ""
+            raise ValueError(f"panel {panel['id']} has duplicate {x_name!r} values{scope}; define an aggregation")
+        ys = [point[1] for point in points]
+        errors = [point[2] for point in points]
+        color = palette[group_index % len(palette)]
+        if panel.get("error"):
+            ax.errorbar(
+                xs, ys, yerr=errors, fmt="o",
+                linestyle="none" if scatter else "-", color=color, ecolor=color,
+                linewidth=1.6, markersize=4.5, capsize=3, label=group if group_name else None,
+            )
+        elif scatter:
+            ax.scatter(xs, ys, s=34, color=color, edgecolor="#222222", linewidth=0.6, label=group if group_name else None)
+        else:
+            ax.plot(xs, ys, marker="o", color=color, linewidth=1.6, markersize=4.5, label=group if group_name else None)
+        for x_value, y_value, error, row in points:
+            mark = {"source_row": row, "x": x_value, "y": y_value}
+            if group_name:
+                mark["group"] = group
+            if error is not None:
+                mark["error"] = error
+            marks.append(mark)
     ax.set_xlabel(x_name)
     ax.set_ylabel(y_name if not panel.get("unit") else f"{y_name} ({panel['unit']})")
     ax.grid(color="#dddddd", linewidth=0.7)
     ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
-    return [{"source_row": row, "x": x, "y": y} for x, y, row in points]
+    if group_name:
+        ax.legend(title=group_name, frameon=False)
+    return marks
+
+
+def plot_heatmap(ax, fig, panel: dict, records: list[dict[str, Any]]) -> list[dict]:
+    import numpy as np  # type: ignore
+
+    x_name, y_name, value_name = panel["x"], panel["y"], panel["value"]
+    x_labels = list(dict.fromkeys(str(record.get(x_name, "")) for record in records))
+    y_labels = list(dict.fromkeys(str(record.get(y_name, "")) for record in records))
+    if not x_labels or not y_labels or any(not label for label in x_labels + y_labels):
+        raise ValueError(f"panel {panel['id']} contains an empty heatmap coordinate")
+    x_index = {label: index for index, label in enumerate(x_labels)}
+    y_index = {label: index for index, label in enumerate(y_labels)}
+    matrix = np.full((len(y_labels), len(x_labels)), np.nan, dtype=float)
+    seen: set[tuple[str, str]] = set()
+    marks = []
+    for record in records:
+        row = int(record["__source_row__"])
+        x_label = str(record.get(x_name, ""))
+        y_label = str(record.get(y_name, ""))
+        coordinate = (x_label, y_label)
+        if coordinate in seen:
+            raise ValueError(f"panel {panel['id']} has duplicate heatmap coordinate {coordinate}; define an aggregation")
+        seen.add(coordinate)
+        value = finite_number(record.get(value_name), column=value_name, row=row)
+        matrix[y_index[y_label], x_index[x_label]] = value
+        marks.append({"source_row": row, "x": x_label, "y": y_label, "value": value})
+    missing = int(np.isnan(matrix).sum())
+    if missing:
+        raise ValueError(f"panel {panel['id']} heatmap grid is incomplete: {missing} coordinate(s) missing")
+    mesh = ax.pcolormesh(
+        np.arange(len(x_labels) + 1), np.arange(len(y_labels) + 1), matrix,
+        cmap=str(panel.get("colormap") or "viridis"), shading="flat",
+        edgecolors="#FFFFFF", linewidth=0.6, rasterized=False,
+    )
+    ax.set_xticks(np.arange(len(x_labels)) + 0.5, x_labels)
+    ax.set_yticks(np.arange(len(y_labels)) + 0.5, y_labels)
+    ax.invert_yaxis()
+    ax.set_xlabel(x_name)
+    ax.set_ylabel(y_name)
+    colorbar = fig.colorbar(mesh, ax=ax, pad=0.025)
+    if colorbar.solids is not None:
+        colorbar.solids.set_rasterized(False)
+    colorbar.set_label(value_name if not panel.get("unit") else f"{value_name} ({panel['unit']})")
+    if panel.get("annotate_values", len(marks) <= 64):
+        threshold = (float(matrix.min()) + float(matrix.max())) / 2
+        for mark in marks:
+            ax.text(
+                x_index[mark["x"]] + 0.5, y_index[mark["y"]] + 0.5, f"{mark['value']:g}",
+                ha="center", va="center", fontsize=7.5,
+                color="#FFFFFF" if mark["value"] > threshold else "#111827",
+            )
+    return marks
 
 
 def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Iterable[str]) -> dict:
@@ -176,10 +288,12 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
     source, records = panel_records(panel, input_root)
     if not records:
         raise ValueError(f"panel {panel.get('id')} data source is empty")
-    if not panel.get("x") or not panel.get("y"):
-        raise ValueError(f"panel {panel.get('id')} requires both x and y columns")
     visual_form = panel.get("visual_form")
-    fig, ax = plt.subplots(figsize=(5.4, 3.7))
+    required = ("x", "y", "value") if visual_form == "heatmap" else ("x", "y")
+    missing = [field for field in required if not panel.get(field)]
+    if missing:
+        raise ValueError(f"panel {panel.get('id')} requires columns: {', '.join(required)}")
+    fig, ax = plt.subplots(figsize=(6.0, 4.4) if visual_form == "heatmap" else (5.4, 3.7))
     try:
         if visual_form == "bar-chart":
             marks = plot_bar(ax, panel, records)
@@ -187,6 +301,8 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
             marks = plot_xy(ax, panel, records, scatter=False)
         elif visual_form == "scatter-plot":
             marks = plot_xy(ax, panel, records, scatter=True)
+        elif visual_form == "heatmap":
+            marks = plot_heatmap(ax, fig, panel, records)
         else:
             raise ValueError(f"unsupported visual form: {visual_form}")
         ax.set_title(str(panel.get("title") or panel.get("id")), loc="left", fontsize=11, fontweight="bold", pad=10)
@@ -203,14 +319,24 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
 
     provenance_marks = []
     for mark in marks:
-        provenance_marks.append({
+        provenance_mark = {
             "source_row": mark["source_row"],
             "x": {"column": panel["x"], "value": mark["x"]},
-            "y": {"column": panel["y"], "value": mark["y"], "unit": panel.get("unit")},
+            "y": {"column": panel["y"], "value": mark["y"]},
             "transform": panel.get("transform", "none"),
-        })
+        }
+        if "value" in mark:
+            provenance_mark["value"] = {"column": panel["value"], "value": mark["value"], "unit": panel.get("unit")}
+        else:
+            provenance_mark["y"]["unit"] = panel.get("unit")
+        provenance_marks.append(provenance_mark)
         if "group" in mark:
             provenance_marks[-1]["group"] = {"column": panel.get("group"), "value": mark["group"]}
+        if "error" in mark:
+            provenance_marks[-1]["error"] = {
+                "column": panel.get("error"), "value": mark["error"],
+                "semantics": panel.get("error_semantics", "symmetric-absolute"),
+            }
     return {
         "panel": panel["id"],
         "visual_form": visual_form,

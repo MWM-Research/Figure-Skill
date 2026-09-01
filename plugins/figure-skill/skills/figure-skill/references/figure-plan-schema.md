@@ -39,6 +39,50 @@ Use a data panel like:
 }
 ```
 
+Use long-form data for a multi-series line plot with symmetric absolute uncertainty:
+
+```json
+{
+  "id": "B",
+  "title": "Accuracy by epoch",
+  "type": "data-plot",
+  "source_files": ["training.csv"],
+  "visual_form": "line-chart",
+  "x": "epoch",
+  "y": "accuracy",
+  "group": "method",
+  "error": "std",
+  "error_semantics": "symmetric-absolute",
+  "unit": "fraction",
+  "transform": "none",
+  "backend": "matplotlib"
+}
+```
+
+Every `(x, group)` pair must be unique unless the reviewed plan defines an aggregation. Error values must be finite and non-negative; do not infer confidence level, standard deviation, or standard error semantics beyond the exact source column.
+
+Use long-form data for a deterministic Heatmap:
+
+```json
+{
+  "id": "C",
+  "title": "Temporal attention map",
+  "type": "data-plot",
+  "source_files": ["attention.csv"],
+  "visual_form": "heatmap",
+  "x": "Frame",
+  "y": "Head",
+  "value": "Attention",
+  "unit": "fraction",
+  "colormap": "viridis",
+  "annotate_values": true,
+  "transform": "none",
+  "backend": "matplotlib"
+}
+```
+
+Every `(x, y)` coordinate must map to exactly one source row and the long-form table must define a complete rectangular grid. Each cell is recorded in provenance as `x`, `y`, and `value`; SVG cells and the colorbar remain vector elements.
+
 Use an illustration panel like:
 
 ```json

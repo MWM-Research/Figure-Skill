@@ -156,7 +156,7 @@ def verify_data_provenance(path: Path) -> list[dict]:
                 if row is None:
                     mismatches.append(f"missing source row {row_number}")
                     continue
-                for axis in ("x", "y", "group"):
+                for axis in ("x", "y", "group", "value", "error"):
                     value = mark.get(axis, {})
                     if not value:
                         continue
