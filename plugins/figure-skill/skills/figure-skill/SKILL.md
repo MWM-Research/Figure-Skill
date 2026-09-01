@@ -50,6 +50,7 @@ The deterministic core must remain usable when optional AI repositories or crede
    - Use `raster-illustration` for explicitly generated photorealistic concepts, 3D-style scientific scenes, graphical abstracts, or cover art. Read [references/raster-illustration.md](references/raster-illustration.md) before planning or executing this route.
    - Use `hybrid-composite` when one Figure mixes raster imagery/evidence with vector modules, text, arrows, axes, or plots. Read [references/hybrid-representation.md](references/hybrid-representation.md), define a reviewed `representation_contract`, add `data-role` to every governed element, and run `audit_hybrid_svg.py` before QA.
    - Use `edit` when the primary job is revising an existing SVG, draw.io file, or supplied figure.
+   - For advanced native SVG geometry or graph edits, read [references/advanced-svg-editing.md](references/advanced-svg-editing.md), prepare exact reviewed JSON operations, and use semantic operations only when graph metadata is present or explicitly bound.
    - Use `composite` when a figure combines evidence-backed plots with explanatory illustration panels.
    - Read [references/routes.md](references/routes.md) when choosing or combining backends.
 
@@ -74,7 +75,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 
 - Use `scripts/backends/matplotlib_backend.py` for bar, line, scatter, Heatmap, distribution, confusion-matrix, ROC/PR, uncertainty, and shared-grid panels. It keeps SVG marks vector and records identity or derived provenance for every mark.
 - Use `scripts/backends/svg_diagram_backend.py` for 2-10 node architecture/workflow diagrams with explicit edges.
-- Use `scripts/backends/native_edit_backend.py` only for reviewed SVG `replace_text` and allowlisted `set_attribute` operations. It requires exact selectors, retains the original, and records source/output hashes plus each applied operation.
+- Use `scripts/backends/native_edit_backend.py` for reviewed exact-ID SVG edits and metadata-backed semantic graph edits. It applies operations atomically, retains the original, validates IDs/topology/geometry, and records before/after provenance.
 - Use `scripts/assemble_figure.py` for single, horizontal, vertical, or 2-column grid assembly. It preserves SVG elements and uses local Edge/Chrome for PDF/PNG export.
 - Let `scripts/figure.py` install `requirements-lock.txt` into its isolated, versioned runtime. Do not install packages into the user's project environment.
 - Run `scripts/figure.py doctor` to verify Python, Matplotlib, openpyxl, local browser export, optional repositories, and credential presence without printing secret values.

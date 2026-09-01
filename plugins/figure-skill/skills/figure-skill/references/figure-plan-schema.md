@@ -189,6 +189,6 @@ Use an edit panel only with explicit, reviewable operations:
 }
 ```
 
-`replace_text` uses an exact text match and defaults to exactly one expected match. `set_attribute` requires one exact element ID and accepts only the backend's visual-attribute allowlist. Unsupported formats or ambiguous selectors must remain unresolved or use an explicit external handoff.
+`replace_text` uses an exact text match and defaults to exactly one expected match. `set_attribute`, `translate_element`, and `resize_element` require one exact element ID. Metadata-backed semantic operations support nodes, edges, deterministic alignment/distribution/overlap repair, and layered auto-layout. Read [advanced-svg-editing.md](advanced-svg-editing.md) for the complete operation boundary. Unsupported formats, ambiguous selectors, legacy topology without explicit binding, and unsafe geometry must remain unresolved or use an external handoff.
 
 Set `review_status` to `approved` only after checking source files and clearing every open question. Never use approval to conceal missing scientific information.

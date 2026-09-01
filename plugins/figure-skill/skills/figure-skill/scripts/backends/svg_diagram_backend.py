@@ -68,12 +68,15 @@ def render_diagram(panel: dict, output: Path) -> dict:
         x = margin + index * (box_width + gap) if horizontal else margin + 110
         y = margin + title_space if horizontal else margin + title_space + index * (box_height + gap)
         positions[entity.lower()] = (x, y)
-        group = ET.SubElement(root, qname("g"), {"id": f"node-{safe_id(entity)}", "data-entity": entity})
+        node_id = safe_id(entity)
+        group = ET.SubElement(root, qname("g"), {"id": f"node-{node_id}", "data-entity": entity, "data-role": "node", "data-node-id": node_id})
         ET.SubElement(group, qname("rect"), {
+            "id": f"node-{node_id}-shape", "data-role": "node-shape",
             "x": str(x), "y": str(y), "width": str(box_width), "height": str(box_height),
             "rx": "14", "fill": "#f2f2f2", "stroke": "#222222", "stroke-width": "2",
         })
         label = ET.SubElement(group, qname("text"), {
+            "id": f"node-{node_id}-label", "data-role": "node-label",
             "x": str(x + box_width / 2), "y": str(y + box_height / 2 + 6),
             "text-anchor": "middle", "font-family": "Arial, sans-serif",
             "font-size": "17", "fill": "#111111",
@@ -99,6 +102,7 @@ def render_diagram(panel: dict, output: Path) -> dict:
         ET.SubElement(root, qname("line"), {
             "id": f"edge-{index}", "x1": str(x1), "y1": str(y1), "x2": str(x2), "y2": str(y2),
             "stroke": "#222222", "stroke-width": "2", "marker-end": "url(#arrowhead)",
+            "data-role": "edge", "data-from": safe_id(source_name), "data-to": safe_id(target_name),
             "data-meaning": str(edge.get("meaning", "unspecified")),
         })
         provenance_edges.append({

@@ -13,6 +13,7 @@ from typing import Any
 ROUTES = ("illustration", "raster-illustration", "hybrid-composite", "data-plot", "edit", "composite")
 EDIT_SUFFIXES = {".svg", ".drawio", ".ai", ".eps"}
 EDIT_WORDS = ("edit", "revise", "modify", "修改", "编辑", "调整", "重绘", "补充")
+EDIT_OPERATIONS = {"replace_text", "set_attribute", "translate_element", "resize_element", "bind_graph_metadata", "add_node", "remove_node", "move_node", "resize_node", "add_edge", "remove_edge", "reconnect_edge", "align_nodes", "distribute_nodes", "resolve_overlaps", "auto_layout"}
 FLOW_WORDS = ("flow", "flows", "followed by", "then", "from", "to", "流向", "依次", "然后", "经过", "到")
 ENTITY_TERMS = (
     "input", "encoder", "decoder", "backbone", "embedding", "retrieval", "retriever",
@@ -517,8 +518,12 @@ def build_plan(
             questions.append("Native deterministic editing currently supports SVG; use the external edit handoff for this format.")
         if not operations:
             questions.append(
-                "Define explicit edit operations before approval; supported SVG operations are replace_text and set_attribute."
+                "Define explicit edit operations for review before approval; see advanced-svg-editing.md for supported exact-ID and semantic SVG operations."
             )
+        else:
+            unsupported = sorted({str(item.get("op")) for item in operations if item.get("op") not in EDIT_OPERATIONS})
+            if unsupported:
+                questions.append("Replace unsupported edit operations before approval: " + ", ".join(unsupported) + ".")
 
     raster_route = route in {"raster-illustration", "hybrid-composite"}
     return {
