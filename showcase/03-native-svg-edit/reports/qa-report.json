@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "status": "pass",
+  "checks": [
+    {
+      "check": "edit-validation",
+      "status": "pass"
+    }
+  ],
+  "output_sha256": "f15eb9d139e7e17e08237c1a30c174380117fb4381195824cd884b933718f5dc"
+}

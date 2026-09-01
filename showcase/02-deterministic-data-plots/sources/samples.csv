@@ -1,0 +1,9 @@
+method,value,x,metric,ci_lower,ci_upper,label,score,actual,predicted
+Baseline,0.62,1,0.62,0.03,0.04,0,0.15,A,A
+Baseline,0.66,2,0.66,0.03,0.03,0,0.25,A,B
+Baseline,0.69,3,0.69,0.02,0.03,1,0.72,B,B
+Baseline,0.71,4,0.71,0.02,0.02,1,0.81,B,B
+Ours,0.70,1,0.70,0.02,0.03,0,0.20,A,A
+Ours,0.76,2,0.76,0.02,0.02,1,0.68,A,B
+Ours,0.82,3,0.82,0.01,0.02,1,0.85,B,B
+Ours,0.86,4,0.86,0.01,0.01,1,0.94,B,B

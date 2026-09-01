@@ -10,6 +10,8 @@ Current internal release: `v0.10.0`
 | --- | --- |
 | **[01 · StreamBridge++ CVPR Hybrid Figure](showcase/01-streambridge-cvpr-figure/)**<br><br>验证视频帧与 attention heatmap 使用 raster `<image>`，模型模块、箭头、文字、坐标轴和实验图标记使用矢量元素。<br><br>Hybrid 结构审计：`pass`<br>最终 QA：`pass`<br><br>[查看全部测试文件](showcase/) | <a href="showcase/01-streambridge-cvpr-figure/final/figure.png"><img src="showcase/01-streambridge-cvpr-figure/final/figure.png" alt="StreamBridge++ CVPR Figure" width="620"></a> |
 
+更多自动回归案例：[高级确定性数据图](showcase/02-deterministic-data-plots/) · [原生 SVG 编辑](showcase/03-native-svg-edit/) · [PNG→SVG](showcase/04-png-to-svg-neural-network/) · [AI Raster 确定性标注](showcase/05-ai-raster-annotation/)。五个案例均由 `scripts/verify_showcase.py` 在离线环境执行结构与容差视觉回归。
+
 ## 团队安装
 
 完整一键安装（Plugin、核心运行环境、PaperBanana、AutoFigure-Edit）：

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "id": "05-ai-raster-annotation",
+  "mode": "frozen-input",
+  "rebuild_command": ["{python}", "{case}/sources/rebuild.py", "--case", "{case}", "--output", "{output}"],
+  "expected_artifacts": ["final/figure.png", "final/figure-unlabeled.png", "provenance/generation-provenance.json", "provenance/annotation-provenance.json", "reports/qa-report.json", "sources/annotation-overlay.svg.txt"],
+  "structural_assertions": {"png": "final/figure.png", "canvas": [1024, 768], "json_status": [{"path": "reports/qa-report.json", "key": "status", "equals": "pass"}]},
+  "visual_regression": {"baseline": "final/figure.png", "generated": "final/figure.png"},
+  "visual_thresholds": {"max_dhash_distance": 6, "max_thumbnail_rmse": 0.035, "pixel_delta_threshold": 16, "max_changed_pixel_ratio": 0.08}
+}

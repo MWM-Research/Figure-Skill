@@ -1,0 +1,220 @@
+{
+  "schema_version": "2.0",
+  "panel": "A",
+  "source_file": "sources/source.svg",
+  "source_sha256": "e5e9ddcfee197b8d72b84f149d960331798432d45e544d00571213be5f174b4c",
+  "source_copy": "panels/panel_a_original.svg",
+  "output_file": "panels/panel_a.svg",
+  "output_sha256": "f15eb9d139e7e17e08237c1a30c174380117fb4381195824cd884b933718f5dc",
+  "operations": [
+    {
+      "op": "resize_node",
+      "node_id": "encoder",
+      "before": {
+        "x": 280.0,
+        "y": 100.0,
+        "width": 140.0,
+        "height": 70.0
+      },
+      "after": {
+        "x": 280.0,
+        "y": 100.0,
+        "width": 160.0,
+        "height": 78.0
+      },
+      "affected_edges": [
+        "edge-1",
+        "edge-2"
+      ],
+      "status": "applied"
+    },
+    {
+      "op": "add_node",
+      "node_id": "attention",
+      "element_id": "node-attention",
+      "after": {
+        "x": 450.0,
+        "y": 210.0,
+        "width": 150.0,
+        "height": 70.0
+      },
+      "status": "applied"
+    },
+    {
+      "op": "reconnect_edge",
+      "edge_id": "edge-2",
+      "before": {
+        "from": "encoder",
+        "to": "output"
+      },
+      "after": {
+        "from": "encoder",
+        "to": "attention"
+      },
+      "status": "applied"
+    },
+    {
+      "op": "add_edge",
+      "edge_id": "edge-3",
+      "from": "attention",
+      "to": "output",
+      "status": "applied"
+    },
+    {
+      "op": "auto_layout",
+      "orientation": "left-to-right",
+      "layers": [
+        [
+          "input"
+        ],
+        [
+          "encoder"
+        ],
+        [
+          "attention"
+        ],
+        [
+          "output"
+        ]
+      ],
+      "before": {
+        "input": {
+          "x": 40.0,
+          "y": 100.0,
+          "width": 140.0,
+          "height": 70.0
+        },
+        "encoder": {
+          "x": 280.0,
+          "y": 100.0,
+          "width": 160.0,
+          "height": 78.0
+        },
+        "output": {
+          "x": 520.0,
+          "y": 100.0,
+          "width": 140.0,
+          "height": 70.0
+        },
+        "attention": {
+          "x": 450.0,
+          "y": 210.0,
+          "width": 150.0,
+          "height": 70.0
+        }
+      },
+      "after": {
+        "input": {
+          "x": 40.0,
+          "y": 40.0,
+          "width": 140.0,
+          "height": 70.0
+        },
+        "encoder": {
+          "x": 260.0,
+          "y": 40.0,
+          "width": 160.0,
+          "height": 78.0
+        },
+        "output": {
+          "x": 640.0,
+          "y": 40.0,
+          "width": 140.0,
+          "height": 70.0
+        },
+        "attention": {
+          "x": 460.0,
+          "y": 40.0,
+          "width": 150.0,
+          "height": 70.0
+        }
+      },
+      "affected_edges": [
+        "edge-1",
+        "edge-2",
+        "edge-3"
+      ],
+      "status": "applied"
+    }
+  ],
+  "graph_before": {
+    "nodes": {
+      "input": {
+        "x": 40.0,
+        "y": 100.0,
+        "width": 140.0,
+        "height": 70.0
+      },
+      "encoder": {
+        "x": 280.0,
+        "y": 100.0,
+        "width": 140.0,
+        "height": 70.0
+      },
+      "output": {
+        "x": 520.0,
+        "y": 100.0,
+        "width": 140.0,
+        "height": 70.0
+      }
+    },
+    "edges": {
+      "edge-1": {
+        "from": "input",
+        "to": "encoder"
+      },
+      "edge-2": {
+        "from": "encoder",
+        "to": "output"
+      }
+    }
+  },
+  "graph_after": {
+    "nodes": {
+      "input": {
+        "x": 40.0,
+        "y": 40.0,
+        "width": 140.0,
+        "height": 70.0
+      },
+      "encoder": {
+        "x": 260.0,
+        "y": 40.0,
+        "width": 160.0,
+        "height": 78.0
+      },
+      "output": {
+        "x": 640.0,
+        "y": 40.0,
+        "width": 140.0,
+        "height": 70.0
+      },
+      "attention": {
+        "x": 460.0,
+        "y": 40.0,
+        "width": 150.0,
+        "height": 70.0
+      }
+    },
+    "edges": {
+      "edge-1": {
+        "from": "input",
+        "to": "encoder"
+      },
+      "edge-2": {
+        "from": "encoder",
+        "to": "attention"
+      },
+      "edge-3": {
+        "from": "attention",
+        "to": "output"
+      }
+    }
+  },
+  "validation": {
+    "unique_ids": true,
+    "no_dangling_edges": true,
+    "no_node_overlap": true,
+    "nodes_within_viewbox": true
+  }
+}

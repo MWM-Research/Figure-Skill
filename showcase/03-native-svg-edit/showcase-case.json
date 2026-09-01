@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "id": "03-native-svg-edit",
+  "mode": "rebuild",
+  "rebuild_command": ["{python}", "{case}/sources/rebuild.py", "--repo", "{repo}", "--case", "{case}", "--output", "{output}"],
+  "expected_artifacts": ["final/figure.svg", "final/figure.pdf", "final/figure.png", "provenance/edit-provenance.json", "reports/qa-report.json"],
+  "structural_assertions": {"svg": "final/figure.svg", "png": "final/figure.png", "pdf": "final/figure.pdf", "pdf_pages": 1, "forbid_embedded_images": true, "min_tags": {"rect": 5, "line": 3, "text": 4}, "required_text": ["Input", "Encoder", "Attention", "Output"], "json_status": [{"path": "reports/qa-report.json", "key": "status", "equals": "pass"}]},
+  "visual_regression": {"baseline": "final/figure.png", "generated": "final/figure.png"},
+  "visual_thresholds": {"max_dhash_distance": 6, "max_thumbnail_rmse": 0.035, "pixel_delta_threshold": 16, "max_changed_pixel_ratio": 0.08}
+}

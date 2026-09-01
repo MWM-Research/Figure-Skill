@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.1",
+  "route": "edit",
+  "review_status": "approved",
+  "open_questions": [],
+  "constraints": {"forbid_invented_quantitative_claims": true},
+  "panels": [{"id": "A", "type": "edit", "source_files": ["source.svg"], "operations": [
+    {"op": "resize_node", "node_id": "encoder", "width": 160, "height": 78},
+    {"op": "add_node", "node_id": "attention", "label": "Attention", "x": 450, "y": 210, "width": 150, "height": 70, "expand_viewbox": true},
+    {"op": "reconnect_edge", "edge_id": "edge-2", "to": "attention"},
+    {"op": "add_edge", "edge_id": "edge-3", "from": "attention", "to": "output", "meaning": "data-flow"},
+    {"op": "auto_layout", "orientation": "left-to-right", "gap_x": 60, "gap_y": 40, "margin": 40, "expand_viewbox": true}
+  ]}]
+}

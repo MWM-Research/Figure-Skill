@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "id": "01-streambridge-cvpr-figure",
+  "mode": "frozen-input",
+  "rebuild_command": [],
+  "expected_artifacts": ["final/figure.svg", "final/figure.pdf", "final/figure.png", "reports/qa-report.json", "reports/hybrid-structure-audit.json"],
+  "structural_assertions": {
+    "svg": "final/figure.svg",
+    "png": "final/figure.png",
+    "pdf": "final/figure.pdf",
+    "pdf_pages": 1,
+    "canvas": [1344, 884],
+    "min_tags": {"image": 6, "rect": 4, "path": 7, "text": 50},
+    "required_text": ["Streaming architecture", "Attention allocation", "StreamBridge++"],
+    "json_status": [{"path": "reports/qa-report.json", "key": "status", "equals": "pass"}, {"path": "reports/hybrid-structure-audit.json", "key": "status", "equals": "pass"}]
+  },
+  "visual_regression": {"baseline": "final/figure.png", "generated": "final/figure.png"},
+  "visual_thresholds": {"max_dhash_distance": 0, "max_thumbnail_rmse": 0.0, "pixel_delta_threshold": 16, "max_changed_pixel_ratio": 0.0}
+}

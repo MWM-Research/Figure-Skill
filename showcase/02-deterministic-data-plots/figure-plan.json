@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.1",
+  "route": "data-plot",
+  "review_status": "approved",
+  "open_questions": [],
+  "constraints": {"forbid_invented_quantitative_claims": true},
+  "panels": [{
+    "id": "A",
+    "type": "data-plot-grid",
+    "title": "Deterministic Data Plot Suite",
+    "layout": {"rows": 2, "columns": 4},
+    "share_x": false,
+    "share_y": false,
+    "shared_legend": false,
+    "subplots": [
+      {"id": "box", "title": "Box", "source_files": ["samples.csv"], "visual_form": "box-plot", "x": "method", "y": "value", "calculation": {"mode": "raw", "operation": "box-summary", "parameters": {}}},
+      {"id": "violin", "title": "Violin", "source_files": ["samples.csv"], "visual_form": "violin-plot", "x": "method", "y": "value", "calculation": {"mode": "raw", "operation": "kde", "parameters": {"bandwidth": "scott"}}},
+      {"id": "hist", "title": "Histogram", "source_files": ["samples.csv"], "visual_form": "histogram", "value": "value", "group": "method", "calculation": {"mode": "raw", "operation": "histogram", "parameters": {"strategy": "count", "count": 4, "density": false}}},
+      {"id": "density", "title": "Density", "source_files": ["samples.csv"], "visual_form": "density-plot", "value": "value", "group": "method", "calculation": {"mode": "raw", "operation": "kde", "parameters": {"bandwidth": "scott"}}},
+      {"id": "confusion", "title": "Confusion", "source_files": ["samples.csv"], "visual_form": "confusion-matrix", "actual": "actual", "predicted": "predicted", "calculation": {"mode": "raw", "operation": "confusion-count", "parameters": {"normalization": "none"}}},
+      {"id": "roc", "title": "ROC", "source_files": ["samples.csv"], "visual_form": "roc-curve", "label": "label", "score": "score", "calculation": {"mode": "raw", "operation": "roc", "parameters": {"positive_label": "1", "compute_auc": true}}},
+      {"id": "pr", "title": "PR", "source_files": ["samples.csv"], "visual_form": "pr-curve", "label": "label", "score": "score", "calculation": {"mode": "raw", "operation": "pr", "parameters": {"positive_label": "1", "compute_auc": false}}},
+      {"id": "uncertainty", "title": "Asymmetric CI", "source_files": ["samples.csv"], "visual_form": "line-chart", "x": "x", "y": "metric", "group": "method", "uncertainty": {"mode": "asymmetric-delta", "lower_column": "ci_lower", "upper_column": "ci_upper"}}
+    ]
+  }]
+}

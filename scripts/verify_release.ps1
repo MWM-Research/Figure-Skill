@@ -90,6 +90,11 @@ if (-not $SkipAcceptance) {
     $AcceptanceStatus = $Acceptance.overall_status
 }
 
+$ShowcaseReport = Join-Path $ReportRoot "showcase-regression.json"
+& $Python (Join-Path $ProjectRoot "scripts\verify_showcase.py") --work-root (Join-Path $ReportRoot "showcase") --output $ShowcaseReport
+if ($LASTEXITCODE -ne 0) { throw "showcase regression failed" }
+$Showcase = Get-Content -Raw -Encoding UTF8 $ShowcaseReport | ConvertFrom-Json
+
 $ScanTargets = @(
     (Join-Path $ProjectRoot "plugins"),
     (Join-Path $ProjectRoot ".agents"),
@@ -113,6 +118,8 @@ $Result = [ordered]@{
     plugin_validation = "pass"
     marketplace_validation = "pass"
     acceptance = $AcceptanceStatus
+    showcase_regression = $Showcase.status
+    showcase_cases = @($Showcase.cases).Count
     secret_matches = 0
     drawio_repair_requested = [bool]$RepairDrawio
 }

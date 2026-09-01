@@ -35,6 +35,10 @@ def require_matplotlib():
     return plt
 
 
+def configure_matplotlib(plt) -> None:
+    plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 9, "axes.linewidth": 0.9, "svg.fonttype": "none", "pdf.fonttype": 42})
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -673,6 +677,7 @@ def provenance_marks(panel: dict, marks: list[dict[str, Any]], subplot_id: str |
 
 def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Iterable[str]) -> dict:
     plt = require_matplotlib()
+    configure_matplotlib(plt)
     source, records = panel_records(panel, input_root)
     if not records:
         raise ValueError(f"panel {panel.get('id')} data source is empty")
@@ -716,6 +721,7 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
 
 def render_grid_panel(panel: dict, input_root: Path, output_dir: Path, formats: Iterable[str]) -> dict:
     plt = require_matplotlib()
+    configure_matplotlib(plt)
     subplots = panel.get("subplots") or []
     layout = panel.get("layout") or {}
     rows, columns = layout.get("rows"), layout.get("columns")
@@ -788,13 +794,7 @@ def main() -> int:
         raise SystemExit("no matching data-plot panels found in the plan")
 
     plt = require_matplotlib()
-    plt.rcParams.update({
-        "font.family": "DejaVu Sans",
-        "font.size": 9,
-        "axes.linewidth": 0.9,
-        "svg.fonttype": "none",
-        "pdf.fonttype": 42,
-    })
+    configure_matplotlib(plt)
     rendered = [render_grid_panel(panel, input_root, output_dir, formats) if panel.get("type") == "data-plot-grid" else render_panel(panel, input_root, output_dir, formats) for panel in panels]
     provenance = {"schema_version": "1.0", "plan": str(args.plan.resolve()), "panels": rendered}
     provenance_path = output_dir / "provenance.json"

@@ -65,6 +65,23 @@ foreach ($Relative in $EvidenceFiles) {
     Copy-Item -LiteralPath $Source -Destination $Target -Force
 }
 
+$ShowcaseEvidence = Join-Path $Stage "evidence\showcase"
+New-Item -ItemType Directory -Force -Path $ShowcaseEvidence | Out-Null
+$ShowcaseVerificationRoot = Join-Path $ProjectRoot "tmp\release-verification"
+foreach ($File in @(
+    (Join-Path $ShowcaseVerificationRoot "showcase-regression.json"),
+    (Join-Path $ShowcaseVerificationRoot "showcase\showcase-contact-sheet.png")
+)) {
+    if (-not (Test-Path -LiteralPath $File)) { throw "showcase release evidence is missing: $File" }
+    Copy-Item -LiteralPath $File -Destination (Join-Path $ShowcaseEvidence ([IO.Path]::GetFileName($File))) -Force
+}
+$CaseManifestRoot = Join-Path $ShowcaseEvidence "cases"
+New-Item -ItemType Directory -Force -Path $CaseManifestRoot | Out-Null
+foreach ($Manifest in Get-ChildItem -LiteralPath (Join-Path $ProjectRoot "showcase") -Recurse -Filter "showcase-case.json" -File) {
+    $CaseName = Split-Path -Leaf (Split-Path -Parent $Manifest.FullName)
+    Copy-Item -LiteralPath $Manifest.FullName -Destination (Join-Path $CaseManifestRoot "$CaseName.json") -Force
+}
+
 $StagedFiles = Get-ChildItem -LiteralPath $Stage -Recurse -File
 $Manifest = [ordered]@{
     schema_version = "1.0"
@@ -104,6 +121,14 @@ try {
         "plugins/figure-skill/skills/figure-skill/scripts/configure_image_key.ps1",
         "plugins/figure-skill/skills/figure-skill/scripts/review_generated_figure.py",
         "scripts/verify_release.ps1",
+        "scripts/verify_showcase.py",
+        "evidence/showcase/showcase-regression.json",
+        "evidence/showcase/showcase-contact-sheet.png",
+        "evidence/showcase/cases/01-streambridge-cvpr-figure.json",
+        "evidence/showcase/cases/02-deterministic-data-plots.json",
+        "evidence/showcase/cases/03-native-svg-edit.json",
+        "evidence/showcase/cases/04-png-to-svg-neural-network.json",
+        "evidence/showcase/cases/05-ai-raster-annotation.json",
         "release-manifest.json"
     )) {
         if ($Required -notin $Entries) { throw "release archive is missing: $Required" }
