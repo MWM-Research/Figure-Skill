@@ -761,7 +761,7 @@ def render_grid_panel(panel: dict, input_root: Path, output_dir: Path, formats: 
             fig.tight_layout()
         stem = f"panel_{str(panel['id']).lower()}"; outputs = {}
         for fmt in formats:
-            target = output_dir / f"{stem}.{fmt}"; fig.savefig(target, bbox_inches="tight", **({"dpi": 220} if fmt == "png" else {})); outputs[fmt] = target.name
+            target = output_dir / f"{stem}.{fmt}"; fig.savefig(target, **({"dpi": 220} if fmt == "png" else {})); outputs[fmt] = target.name
     finally:
         plt.close(fig)
     return {"panel": panel["id"], "visual_form": "data-plot-grid", "sources": sources, "outputs": outputs, "marks": provenance, "grid": {"rows": rows, "columns": columns, "share_x": bool(panel.get("share_x")), "share_y": bool(panel.get("share_y")), "shared_legend": bool(panel.get("shared_legend"))}}
