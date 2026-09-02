@@ -17,6 +17,8 @@ On first use, bootstrap and inspect the environment. This is safe to run again a
 python "<SKILL_ROOT>/scripts/figure.py" doctor
 ```
 
+For team installation or a concise capability matrix, read [references/setup-and-status.md](references/setup-and-status.md) and use `figure.py setup` / `figure.py status`. Setup never collects credentials; Core remains usable when optional capabilities need a Key.
+
 The deterministic core must remain usable when optional AI repositories or credentials are absent. Report `optional-disabled` as an available downgrade, not as a core failure.
 
 1. Create a plan and stop for review:

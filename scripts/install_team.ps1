@@ -36,23 +36,30 @@ else {
 codex plugin add figure-skill@mwm-research
 if ($LASTEXITCODE -ne 0) { throw "Failed to install figure-skill@mwm-research." }
 
-python $Launcher bootstrap
-if ($LASTEXITCODE -ne 0) { throw "Failed to bootstrap the Figure Skill core runtime." }
-
-if (-not $SkipExternalBackends) {
-    $BackendArgs = @("backends", "install", "--backend", $Backends)
-    if ($Recreate) { $BackendArgs += "--recreate" }
-    python $Launcher @BackendArgs
-    if ($LASTEXITCODE -ne 0) { throw "Failed to install one or more external Figure Skill backends." }
+$Profile = if ($SkipExternalBackends) {
+    "core"
 }
+elseif ($Backends -eq "paperbanana") {
+    "illustration"
+}
+elseif ($Backends -eq "autofigure-edit") {
+    "vectorize"
+}
+else {
+    "all"
+}
+$SetupArgs = @("setup", "--profile", $Profile, "--yes")
+if ($Recreate) { $SetupArgs += "--recreate" }
+python $Launcher @SetupArgs
+if ($LASTEXITCODE -ne 0) { throw "Figure Skill profile setup failed: $Profile" }
 
 $DoctorReport = Join-Path $ProjectRoot "tmp\team-install-doctor.json"
-python $Launcher doctor --output $DoctorReport | Out-Null
+python $Launcher status --json --output $DoctorReport | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "Figure Skill health check failed." }
 
 Write-Output "Figure Skill team installation completed."
 Write-Output "Health report: $DoctorReport"
 Write-Output "Open a new Codex task and invoke `$figure-skill."
 if ($SkipExternalBackends) {
-    Write-Output "External backends were skipped and can be installed later with: python `"$Launcher`" backends install --backend all"
+    Write-Output "External backends were skipped and can be installed later with: python `"$Launcher`" setup --profile all --yes"
 }

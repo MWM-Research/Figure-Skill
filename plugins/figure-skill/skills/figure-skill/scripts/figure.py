@@ -120,9 +120,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Bootstrap and run Figure Skill without depending on the current working directory."
     )
-    parser.add_argument("command", choices=("bootstrap", "backends", "doctor", "workflow", "qa", "review", "runtime-path"))
+    parser.add_argument("command", choices=("setup", "status", "bootstrap", "backends", "doctor", "workflow", "qa", "review", "runtime-path"))
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+    if args.command in {"setup", "status"}:
+        command = [sys.executable, str(SCRIPT_ROOT / "capability_cli.py"), args.command, *args.arguments]
+        return subprocess.run(command, env=os.environ.copy()).returncode
     if args.command == "bootstrap":
         if args.arguments:
             parser.error("bootstrap does not accept additional arguments")

@@ -22,6 +22,24 @@ cd Figure-Skill
 .\scripts\install_team.ps1
 ```
 
+安装后可直接查看能力矩阵：
+
+```powershell
+$FigureSkill = Resolve-Path .\plugins\figure-skill\skills\figure-skill
+python "$FigureSkill\scripts\figure.py" status
+```
+
+按 Profile 单独准备环境：
+
+```powershell
+python "$FigureSkill\scripts\figure.py" setup --profile core --yes
+python "$FigureSkill\scripts\figure.py" setup --profile vectorize --yes
+python "$FigureSkill\scripts\figure.py" setup --profile illustration --yes
+python "$FigureSkill\scripts\figure.py" setup --profile all --yes
+```
+
+不带参数在交互终端运行 `setup` 时默认选择 `all` 并在大型下载前确认。自动化环境必须显式提供 `--profile` 和 `--yes`。Setup 不读取或保存 API Key；缺少凭据只会在 Status 中显示为待配置。
+
 该过程会下载两个固定版本的上游仓库及大型ML依赖，可能占用数GB磁盘；不会配置或保存API Key。只需要确定性核心时可使用 `./scripts/install_team.ps1 -SkipExternalBackends`。
 
 团队成员获得 `MWM-Research/Figure-Skill` 私有仓库权限后，只需：
