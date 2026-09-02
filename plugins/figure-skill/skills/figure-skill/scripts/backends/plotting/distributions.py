@@ -120,4 +120,3 @@ def plot_histogram(ax, panel: dict, records: list[dict[str, Any]]) -> list[dict]
         ax.set_ylabel(height_name)
     ax.grid(axis="y", color="#dddddd", linewidth=0.7)
     return marks
-

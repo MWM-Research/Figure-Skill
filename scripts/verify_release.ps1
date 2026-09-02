@@ -50,6 +50,16 @@ if (Test-Path -LiteralPath (Join-Path $AutoRepo "autofigure2.py")) {
 if ($LASTEXITCODE -ne 0) { throw "core environment check failed" }
 $Environment = Get-Content -Raw -Encoding UTF8 $EnvironmentReport | ConvertFrom-Json
 
+$Launcher = Join-Path $SkillRoot "scripts\figure.py"
+$SetupPlan = Join-Path $ReportRoot "setup-dry-run.json"
+& $Python $Launcher setup --profile all --dry-run --output $SetupPlan | Out-Null
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $SetupPlan)) { throw "setup dry-run failed" }
+& $Python $Launcher bootstrap | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "versioned runtime bootstrap failed" }
+$CapabilityStatus = Join-Path $ReportRoot "capability-status.json"
+& $Python $Launcher status --json --output $CapabilityStatus | Out-Null
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $CapabilityStatus)) { throw "capability status failed" }
+
 $TestRoot = Join-Path $SkillRoot "tests"
 $AutomatedTestCount = [int](& $Python -c "import sys, unittest; print(unittest.defaultTestLoader.discover(sys.argv[1]).countTestCases())" $TestRoot | Select-Object -Last 1)
 & $Python -m unittest discover -s $TestRoot -v
@@ -114,6 +124,8 @@ $Result = [ordered]@{
     verified_at = (Get-Date).ToString("o")
     python = $Environment.python
     core = $Environment.core
+    setup_dry_run = "pass"
+    capability_status = "pass"
     automated_tests = $AutomatedTestCount
     skill_validation = "pass"
     plugin_validation = "pass"

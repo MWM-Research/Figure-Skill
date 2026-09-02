@@ -2,6 +2,27 @@
 
 All notable project changes are recorded here.
 
+## 0.12.0 - 2026-09-02
+
+### Added
+
+- Added interactive and non-interactive `setup` profiles for Core, Vectorize, Illustration, and All capabilities.
+- Added a credential-safe `status` matrix, JSON reports, strict Profile exit codes, and atomic Runtime capability reports.
+- Added compatibility tests for legacy script paths, public Python imports, copied plotting runtimes, and internal dependency boundaries.
+
+### Changed
+
+- Team installation now delegates Core/backend preparation to the unified Setup implementation while preserving existing PowerShell parameters.
+- Split deterministic plotting into focused I/O, basic, distribution, classification, axis, provenance, and renderer modules.
+- Split planning into route, data, illustration, raster, Hybrid, edit, and schema modules.
+- Split QA into structural, data provenance, edit provenance, generated, Hybrid, and report modules.
+- Kept `matplotlib_backend.py`, `plan_figure.py`, and `qa_figure.py` as thin backwards-compatible entry points.
+
+### Validation
+
+- 91 automated tests cover Setup/Status, public compatibility, copied-source execution, existing workflows, and all previous scientific QA gates.
+- Five offline Showcase cases remain structurally and visually stable after the refactor.
+
 ## 0.11.0 - 2026-09-01
 
 ### Added

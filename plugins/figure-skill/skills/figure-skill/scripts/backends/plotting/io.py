@@ -61,4 +61,3 @@ def panel_records(panel: dict, input_root: Path) -> tuple[Path, list[dict[str, A
     if not source.is_file():
         raise FileNotFoundError(f"data source not found: {source}")
     return source, read_records(source)
-

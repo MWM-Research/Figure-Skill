@@ -2,7 +2,7 @@
 
 统一科研画图工作流：扫描论文和实验文件，生成需人工确认的面板计划，再通过确定性 SVG/Matplotlib 后端生成可编辑图、PDF、PNG、数据溯源和 QA 报告。
 
-Current internal release: `v0.11.0`
+Current internal release: `v0.12.0`
 
 ## 测试案例展示
 
@@ -166,7 +166,7 @@ python "$FigureSkill\scripts\figure.py" workflow `
 .\scripts\build_release.ps1
 ```
 
-发布产物位于 `dist/figure-skill-v0.11.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
+发布产物位于 `dist/figure-skill-v0.12.0.zip`，对应 SHA-256 写入同名 `.sha256` 文件。
 
 外部生成服务默认不会执行。需要时先阅读 `plugins/figure-skill/skills/figure-skill/references/external-backends.md`，检查请求清单，再显式授权联网和凭据使用。
 

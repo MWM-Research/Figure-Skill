@@ -113,4 +113,3 @@ def grouped_samples(panel: dict, records: list[dict[str, Any]], value_name: str)
         values.append(finite_number(record.get(value_name), column=value_name, row=row))
         rows.append(row)
     return grouped
-

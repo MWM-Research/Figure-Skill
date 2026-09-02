@@ -189,4 +189,3 @@ def plot_heatmap(ax, fig, panel: dict, records: list[dict[str, Any]]) -> list[di
                 color="#FFFFFF" if mark["value"] > threshold else "#111827",
             )
     return marks
-

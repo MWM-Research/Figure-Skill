@@ -50,4 +50,3 @@ def apply_axis_config(axes: list[Any], panel: dict, marks: list[dict[str, Any]])
         top.tick_params(labeltop=False, bottom=False); bottom.xaxis.tick_bottom()
         kwargs = dict(marker=[(-1, -0.5), (1, 0.5)], markersize=8, linestyle="none", color="k", mec="k", mew=1, clip_on=False)
         top.plot([0, 1], [0, 0], transform=top.transAxes, **kwargs); bottom.plot([0, 1], [1, 1], transform=bottom.transAxes, **kwargs)
-

@@ -174,4 +174,3 @@ def main() -> int:
     (output_dir / "render-recipe.json").write_text(json.dumps(recipe, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Rendered {len(rendered)} data panel(s) -> {output_dir}")
     return 0
-

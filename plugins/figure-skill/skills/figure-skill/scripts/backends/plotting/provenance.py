@@ -24,4 +24,3 @@ def provenance_marks(panel: dict, marks: list[dict[str, Any]], subplot_id: str |
         if "threshold" in mark: item["threshold"] = mark["threshold"]
         result.append(item)
     return result
-

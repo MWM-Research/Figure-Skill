@@ -87,4 +87,3 @@ def plot_curve(ax, panel: dict, records: list[dict[str, Any]], *, curve: str) ->
     ax.set_ylabel("True Positive Rate" if curve == "roc" else "Precision")
     ax.grid(color="#dddddd", linewidth=0.7)
     return marks
-
