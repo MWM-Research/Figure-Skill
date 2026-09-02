@@ -64,6 +64,7 @@ The deterministic core must remain usable when optional AI repositories or crede
    - `reports/qa-report.json`: structural and evidence QA
 
 6. Use `scripts/inventory_inputs.py`, `scripts/plan_figure.py`, backend scripts, or `scripts/assemble_figure.py` separately only when debugging or deliberately running one stage.
+   Maintainers changing internal modules should preserve the compatibility boundaries documented in [references/internal-architecture.md](references/internal-architecture.md).
 
 7. Re-run QA after manual edits:
 
