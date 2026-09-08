@@ -116,7 +116,7 @@ class HybridWorkflowRegressionTests(unittest.TestCase):
             self.assertEqual((output / "final/figure.svg").read_bytes(), svg.read_bytes())
             audit = json.loads((output / "reports/hybrid-structure-audit.json").read_text())
             self.assertEqual(audit["status"], "pass")
-            self.assertEqual(Path(audit["source"]), output / "final/figure.svg")
+            self.assertTrue(Path(audit["source"]).samefile(output / "final/figure.svg"))
             qa = json.loads((output / "reports/qa-report.json").read_text())
             self.assertEqual(qa["status"], "warn")
             self.assertFalse(any(item["status"] == "fail" for item in qa["checks"]), qa)
