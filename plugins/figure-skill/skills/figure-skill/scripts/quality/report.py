@@ -14,17 +14,18 @@ def run_qa(target: Path, plan: dict | None) -> dict:
     files = [target] if target.is_file() else sorted(path for path in target.rglob("*") if path.is_file())
     suffixes = {path.suffix.lower() for path in files}
     raster_route = bool(plan and plan.get("route") in {"raster-illustration", "hybrid-composite"})
+    native_hybrid = bool(plan and plan.get("route") == "hybrid-composite" and plan.get("hybrid_source_mode") == "native-svg")
     technical_checks = [
         check("target-has-files", "pass" if files else "fail"),
         check("files-nonempty", "pass" if files and all(path.stat().st_size > 0 for path in files) else "fail"),
         check(
             "editable-source-present",
-            "pass" if raster_route or suffixes & EDITABLE else "fail",
+            "pass" if (raster_route and not native_hybrid) or suffixes & EDITABLE else "fail",
             detail="not required for an explicitly generated raster illustration" if raster_route else "required",
         ),
         check(
             "vector-export-present",
-            "pass" if raster_route or suffixes & {".svg", ".pdf", ".eps"} else "fail",
+            "pass" if (raster_route and not native_hybrid) or suffixes & {".svg", ".pdf", ".eps"} else "fail",
             detail="not required for raster-illustration route" if raster_route else "required",
         ),
         check("preview-present", "pass" if ".png" in suffixes else "warn"),
@@ -46,7 +47,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
         review_status = plan.get("review_status")
         technical_checks.append(check("plan-reviewed", "pass" if review_status == "approved" else "warn", value=review_status))
         planned = [
-            (str(panel.get("id", "")).lower(), ".png" if panel.get("type") in {"raster-illustration", "hybrid-composite"} else ".svg")
+            (str(panel.get("id", "")).lower(), ".png" if not native_hybrid and panel.get("type") in {"raster-illustration", "hybrid-composite"} else ".svg")
             for panel in plan.get("panels", [])
         ]
         missing_panels = [
@@ -72,7 +73,7 @@ def run_qa(target: Path, plan: dict | None) -> dict:
                 edit_panel = next((panel for panel in plan.get("panels", []) if panel.get("type") == "edit"), None)
                 technical_checks.extend(verify_edit_provenance(path, edit_panel))
         has_raster_panels = any(panel.get("type") in {"raster-illustration", "hybrid-composite"} for panel in plan.get("panels", []))
-        if has_raster_panels:
+        if has_raster_panels and not native_hybrid:
             generation_files = [path for path in files if path.name == "generation-provenance.json"]
             request_files = [path for path in files if path.name == "raster-illustration-request.json"]
             technical_checks.append(check("generation-provenance-present", "pass" if generation_files else "fail"))
@@ -87,7 +88,14 @@ def run_qa(target: Path, plan: dict | None) -> dict:
                         count=len(annotation_files),
                     ))
                     for path in annotation_files:
-                        technical_checks.extend(verify_annotation_provenance(path, panel))
+                        annotation_checks = verify_annotation_provenance(path, panel)
+                        technical_checks.extend(annotation_checks)
+                        if all(c["status"] == "pass" for c in annotation_checks):
+                            annotation = json.loads(path.read_text(encoding="utf-8"))
+                            for item in technical_checks:
+                                if item["check"] == "svg-not-raster-only" and sha256(Path(item["file"])) == annotation["overlay_source_sha256"]:
+                                    item["status"] = "pass"
+                                    item["detail"] = "Verified editable annotation SVG with provenance-bound raster background"
                 panel_id = str(panel.get("id", "")).lower()
                 panel_path = next((path for path in files if path.name.lower() == f"panel_{panel_id}.png"), None)
                 canvas = panel.get("canvas", {})
@@ -116,6 +124,8 @@ def run_qa(target: Path, plan: dict | None) -> dict:
         has_representation_contract = isinstance(plan.get("representation_contract"), dict) or any(
             isinstance(panel.get("representation_contract"), dict) for panel in plan.get("panels", [])
         )
+        if native_hybrid:
+            technical_checks.append(check("hybrid-contract-present", "pass" if has_representation_contract else "fail"))
         if has_representation_contract:
             audit_files = [path for path in files if path.name == "hybrid-structure-audit.json"]
             technical_checks.append(check(
@@ -123,6 +133,18 @@ def run_qa(target: Path, plan: dict | None) -> dict:
             ))
             for path in audit_files:
                 technical_checks.extend(verify_hybrid_audit(path))
+                if native_hybrid:
+                    try:
+                        audit_data = json.loads(path.read_text(encoding="utf-8"))
+                    except (OSError, ValueError):
+                        continue
+                    final_svg = target / "final" / "figure.svg"
+                    technical_checks.append(check("hybrid-final-matches-audit", "pass" if final_svg.is_file()
+                                                  and audit_data.get("source_sha256") == sha256(final_svg) else "fail"))
+                    if audit_data.get("status") == "pass" and final_svg.is_file() and audit_data.get("source_sha256") == sha256(final_svg):
+                        for item in technical_checks:
+                            if item["check"] == "svg-not-raster-only" and sha256(Path(item["file"])) == audit_data.get("source_sha256"):
+                                item["status"] = "pass"
 
     scientific_status = "not-applicable"
     human_review_status = "not-required"

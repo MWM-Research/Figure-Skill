@@ -40,6 +40,8 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
         fig, ax = plt.subplots(figsize=(6.0, 4.4) if visual_form in {"heatmap", "confusion-matrix"} else (5.4, 3.7))
         axes = [ax]
     try:
+        if panel.get("figure_size_inches"):
+            fig.set_size_inches(*panel["figure_size_inches"])
         marks = render_to_axis(axes[0], fig, panel, records)
         for extra in axes[1:]: render_to_axis(extra, fig, panel, records)
         apply_axis_config(axes, panel, marks)
@@ -53,7 +55,7 @@ def render_panel(panel: dict, input_root: Path, output_dir: Path, formats: Itera
         for fmt in formats:
             target = output_dir / f"{stem}.{fmt}"
             kwargs = {"dpi": 220} if fmt == "png" else {}
-            fig.savefig(target, bbox_inches="tight", **kwargs)
+            fig.savefig(target, bbox_inches=None if panel.get("figure_size_inches") else "tight", **kwargs)
             outputs[fmt] = target.name
     finally:
         plt.close(fig)

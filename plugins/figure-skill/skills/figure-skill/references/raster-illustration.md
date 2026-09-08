@@ -18,7 +18,11 @@ The reviewed `raster-illustration` panel must record:
 
 Keep `open_questions` non-empty until ambiguous entities and relationships are resolved. Generated content must never introduce measurements, statistics, causal claims, or experimental observations that are absent from authoritative inputs.
 
-## BYOK configuration
+## Built-in generation (preferred in Codex)
+
+Use the agent's built-in image tool when available, then import the selected PNG with `workflow --builtin-image <PNG> --builtin-prompt <UTF8.txt>`. Read [builtin-image-generation.md](builtin-image-generation.md). No separately configured API key is needed. The local importer preserves hashes and reuses the annotations and QA below. Backend model metadata remains unknown unless the tool actually reports it.
+
+## BYOK configuration (explicit alternative)
 
 The team defaults are an OpenAI-compatible Images endpoint at `https://right.codes/codex/v1/images/generations` and model `gpt-image-2`. A member supplies only their own `FIGURE_IMAGE_API_KEY`. `FIGURE_IMAGE_BASE_URL` and `FIGURE_IMAGE_MODEL` are optional overrides.
 
@@ -60,7 +64,7 @@ Every new raster plan receives a reviewed title, a key-concepts subtitle, and th
 
 The backend rejects text that is absent from `visible_labels`, invalid coordinates, non-hex legend colors, aspect-ratio changes, or missing annotation provenance. It preserves the unannotated PNG and the overlay source for revision.
 
-## Execution
+## BYOK execution
 
 Generate and review the plan first. Then execute only with explicit network authorization:
 

@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from inventory_inputs import inventory
@@ -24,7 +25,7 @@ def run_checked(command: list[str]) -> None:
         raise RuntimeError(f"command failed with exit code {result.returncode}: {' '.join(command)}")
 
 
-def ensure_output_scope(output: Path, *, continuing: bool, force: bool) -> None:
+def ensure_output_scope(output: Path, *, continuing: bool, force: bool, hybrid_resume: bool = False) -> None:
     if not output.exists():
         output.mkdir(parents=True)
         return
@@ -34,6 +35,14 @@ def ensure_output_scope(output: Path, *, continuing: bool, force: bool) -> None:
     if force:
         return
     allowed = {"inventory.json", "figure-plan.json"} if continuing else set()
+    if continuing and hybrid_resume:
+        # Only resume the exact handoff skeleton; never silently overwrite a rendered run.
+        skeleton = {"sources": {"hybrid-composite-handoff.json"}, "reports": {"workflow-status.json"},
+                    "panels": set(), "final": set(), "provenance": set()}
+        for name, children in skeleton.items():
+            directory = output / name
+            if directory.is_dir() and {path.name for path in directory.iterdir()} <= children:
+                allowed.add(name)
     unexpected = [path.name for path in existing if path.name not in allowed]
     if unexpected:
         raise FileExistsError(
@@ -95,21 +104,38 @@ def main() -> int:
     parser.add_argument("--stop-after-plan", action="store_true")
     parser.add_argument("--approve-plan", action="store_true", help="Confirm that the plan and inferred relationships were reviewed")
     parser.add_argument("--force", action="store_true", help="Allow overwriting files in the selected output directory")
-    parser.add_argument("--execute-raster", action="store_true", help="Execute an approved BYOK raster-illustration request")
+    generation = parser.add_mutually_exclusive_group()
+    generation.add_argument("--execute-raster", action="store_true", help="Execute an approved BYOK raster-illustration request")
+    generation.add_argument("--builtin-image", type=Path, help="Import a PNG returned by the Codex builtin image tool")
+    parser.add_argument("--builtin-prompt", type=Path, help="UTF-8 file containing the exact builtin tool prompt")
     parser.add_argument("--allow-network", action="store_true", help="Authorize the selected external generation request")
     parser.add_argument("--image-base-url", help="OpenAI-compatible base URL; defaults to FIGURE_IMAGE_BASE_URL")
     parser.add_argument("--image-model", help="Image generation model; defaults to FIGURE_IMAGE_MODEL")
     parser.add_argument("--image-size", help="Exact WIDTHxHEIGHT canvas; defaults to the reviewed plan")
     parser.add_argument("--image-quality", default="medium")
+    parser.add_argument("--hybrid-svg", type=Path, help="Reviewed hybrid SVG to audit and export")
+    parser.add_argument("--hybrid-asset-root", type=Path, help="Root for reviewed hybrid source assets (defaults to input_root)")
     args = parser.parse_args()
+    if bool(args.builtin_image) != bool(args.builtin_prompt):
+        parser.error("--builtin-image and --builtin-prompt must be supplied together")
 
     if args.input and not args.input.is_dir():
         parser.error(f"input directory does not exist: {args.input}")
     if args.plan and not args.plan.is_file():
         parser.error(f"plan does not exist: {args.plan}")
     output = args.output.resolve()
-    ensure_output_scope(output, continuing=bool(args.plan), force=args.force)
+    ensure_output_scope(output, continuing=bool(args.plan), force=args.force, hybrid_resume=bool(args.hybrid_svg))
     plan, plan_path = create_plan(args, output)
+    if args.builtin_image and plan.get("route") != "raster-illustration":
+        parser.error("--builtin-image requires a raster-illustration plan")
+    if args.builtin_image and (args.image_base_url or args.image_model or args.allow_network):
+        parser.error("Builtin import does not accept API endpoint, model, or network options")
+    if args.hybrid_svg and (plan.get("route") != "hybrid-composite" or not args.hybrid_svg.is_file()):
+        parser.error("--hybrid-svg requires an existing SVG and a hybrid-composite plan")
+    if args.hybrid_asset_root and not args.hybrid_svg:
+        parser.error("--hybrid-asset-root requires --hybrid-svg")
+    if args.hybrid_svg:
+        plan["hybrid_source_mode"] = "native-svg"
     raster_panels = [
         panel for panel in plan.get("panels", [])
         if panel.get("type") in {"raster-illustration", "hybrid-composite"}
@@ -161,6 +187,52 @@ def main() -> int:
 
     panel_types = {panel.get("type") for panel in plan.get("panels", [])}
     if "hybrid-composite" in panel_types:
+        if len(plan.get("panels", [])) != 1:
+            parser.error("hybrid-composite requires one complete figure panel")
+        status_path = reports_dir / "workflow-status.json"
+        if args.hybrid_svg:
+            from assemble_figure import export_with_browser, svg_geometry
+            from audit_hybrid_svg import audit
+
+            status_path.write_text(json.dumps({"status": "in-progress", "complete": False}), encoding="utf-8")
+            formats = {item.strip().lower() for item in args.formats.split(",") if item.strip()}
+            if formats - {"svg", "pdf", "png"}:
+                parser.error("unsupported hybrid export format")
+            source = args.hybrid_svg.resolve()
+            asset_root = (args.hybrid_asset_root or Path(plan.get("input_root") or source.parent)).resolve()
+            # Audit before copying, then bind the saved audit to the actual delivered SVG.
+            initial_audit = audit(plan_path, source, asset_root)
+            if initial_audit["status"] != "pass":
+                (reports_dir / "hybrid-structure-audit.json").write_text(json.dumps(initial_audit, indent=2), encoding="utf-8")
+                status_path.write_text(json.dumps({"status": "audit-failed", "complete": False}), encoding="utf-8")
+                return 1
+            final_svg = final_dir / "figure.svg"
+            shutil.copy2(source, final_svg)
+            shutil.copy2(source, panels_dir / f"panel_{str(plan['panels'][0]['id']).lower()}.svg")
+            report = audit(plan_path, final_svg, asset_root)
+            (reports_dir / "hybrid-structure-audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+            if report["status"] != "pass":
+                return 1
+            width, height, _ = svg_geometry(ET.parse(final_svg).getroot())
+            canvas = plan["panels"][0]["canvas"]
+            if (width, height) != (canvas["width"], canvas["height"]):
+                raise ValueError("Hybrid SVG dimensions must match the reviewed canvas")
+            if formats & {"png", "pdf"}:
+                export_with_browser(final_svg, int(width), int(height),
+                                    png=final_dir / "figure.png" if "png" in formats else None,
+                                    pdf=final_dir / "figure.pdf" if "pdf" in formats else None)
+            if (final_dir / "figure.png").is_file():
+                run_checked([sys.executable, str(HERE / "review_generated_figure.py"), "prepare",
+                             "--plan", str(plan_path), "--image", str(final_dir / "figure.png"),
+                             "--output", str(reports_dir / "scientific-review.json")])
+            run_checked([sys.executable, str(HERE / "qa_figure.py"), str(output),
+                         "--plan", str(plan_path), "--output", str(reports_dir / "qa-report.json")])
+            qa = json.loads((reports_dir / "qa-report.json").read_text(encoding="utf-8"))
+            complete = qa["status"] == "pass"
+            status_path.write_text(json.dumps({"status": "complete" if complete else "awaiting-review",
+                                               "complete": complete, "qa_status": qa["status"]}), encoding="utf-8")
+            print(f"Hybrid exported; QA {qa['status']} -> {output}")
+            return 0 if complete else 2
         handoff = {
             "schema_version": "1.0",
             "route": "hybrid-composite",
@@ -174,8 +246,10 @@ def main() -> int:
         }
         handoff_path = sources_dir / "hybrid-composite-handoff.json"
         handoff_path.write_text(json.dumps(handoff, ensure_ascii=False, indent=2), encoding="utf-8")
+        status_path.write_text(json.dumps({"status": "awaiting-hybrid-svg", "complete": False,
+                                          "next_step": "Resume with --plan, --approve-plan and --hybrid-svg."}), encoding="utf-8")
         print(f"Hybrid composite handoff prepared; build and audit the reviewed representation contract -> {handoff_path}")
-        return 0
+        return 2
     if "raster-illustration" in panel_types:
         command = [
             sys.executable, str(HERE / "adapters" / "raster_illustration_adapter.py"), str(plan_path),
@@ -189,11 +263,15 @@ def main() -> int:
             if not args.allow_network:
                 parser.error("--execute-raster requires --allow-network")
             command.extend(["--execute", "--allow-network"])
-        run_checked(command)
+        if args.builtin_image:
+            from adapters.builtin_image_adapter import import_image
+            import_image(plan, args.builtin_image.resolve(), args.builtin_prompt.resolve(), panels_dir)
+        else:
+            run_checked(command)
         request_manifest = panels_dir / "raster-illustration-request.json"
         if request_manifest.is_file():
             shutil.move(str(request_manifest), sources_dir / request_manifest.name)
-        if not args.execute_raster:
+        if not args.execute_raster and not args.builtin_image:
             print(f"Raster illustration request prepared for review -> {sources_dir}")
             return 0
         raster_panel = raster_panels[0]

@@ -31,6 +31,13 @@ def main() -> int:
     report = run_qa(args.target.resolve(), plan)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    status_path = args.target / "reports" / "workflow-status.json"
+    if plan and plan.get("hybrid_source_mode") == "native-svg" and status_path.is_file():
+        complete = report["status"] == "pass"
+        status_path.write_text(json.dumps({
+            "status": "complete" if complete else ("qa-failed" if report["status"] == "fail" else "awaiting-review"),
+            "complete": complete, "qa_status": report["status"],
+        }, indent=2), encoding="utf-8")
     print(f"QA status: {report['status']} -> {args.output}")
     return 0 if report["status"] != "fail" else 1
 

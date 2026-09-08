@@ -5,7 +5,11 @@ description: Route research manuscripts, methods, captions, reference figures, a
 
 # Figure Skill
 
+For near-paper-ready main figures, method overviews, mechanisms, or multi-panel figures with editable critical labels/arrows, use the explicit `main-figure` mode described in [references/main-figure.md](references/main-figure.md). The agent creates a source-backed design brief, generates two complete composition candidates, ranks only scientifically passing candidates, and makes at most two revisions plus one cleanup. This mode allows generated draft labels/arrows; the final keeps them editable and plots real data deterministically. Its mode-specific text policy takes precedence over the raster-only workflow below. Deliver the checked final candidate once for user review.
+
 Turn heterogeneous research inputs into editable, reviewable figures. Treat scientific correctness and provenance as hard constraints.
+
+When conceptual bitmap assets improve the requested figure, prefer Codex's built-in `image_gen` capability if available in the current task. Read [references/builtin-image-generation.md](references/builtin-image-generation.md) for tool invocation, artifact import, and hybrid use. This path needs no separately configured API key. Keep explicit user choices of BYOK, PaperBanana, or AutoFigure-Edit.
 
 ## Workflow
 
@@ -21,7 +25,7 @@ For team installation or a concise capability matrix, read [references/setup-and
 
 The deterministic core must remain usable when optional AI repositories or credentials are absent. Report `optional-disabled` as an available downgrade, not as a core failure.
 
-1. Create a plan and stop for review:
+1. Create a plan. Stop for review when scientific content, inferred relationships, or unspecified choices need approval:
 
    ```powershell
    python "<SKILL_ROOT>/scripts/figure.py" workflow `
@@ -36,7 +40,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 
 2. Inspect `inventory.json` and `figure-plan.json`. Resolve every `open_questions` item and verify inferred entities, arrows, columns, units, and chart forms against authoritative sources. Edit the plan directly when needed.
 
-3. Resume only after explicit human approval:
+3. Resume after approval, reusing explicit authorization already given in the conversation:
 
    ```powershell
    python "<SKILL_ROOT>/scripts/figure.py" workflow `
@@ -45,12 +49,14 @@ The deterministic core must remain usable when optional AI repositories or crede
      --approve-plan
    ```
 
+   For a small, reversible SVG edit whose exact replacement text or exact-ID styling change was explicitly requested, that request authorizes the matching operations. Generate and inspect the plan, then use `--approve-plan` without asking the same question again. Record the user's instruction and the corresponding operations in the plan's `approval_basis`. Do not infer authorization for changed scientific meaning, data, arrows/topology, or unspecified edits. Unresolved `open_questions` still block rendering. `--approve-plan` records existing authorization; it does not grant authorization by itself.
+
 4. Confirm that the inferred route matches the evidence:
    - Use `data-plot` for CSV, TSV, JSON measurements, logs, metrics, statistics, and quantitative comparisons.
    - For box, violin, histogram, density, confusion-matrix, ROC/PR, asymmetric uncertainty, risky axes, or shared subplots, read [references/advanced-data-plots.md](references/advanced-data-plots.md) and require explicit calculation/axis parameters before approval.
    - Use `illustration` for methods, architectures, mechanisms, workflows, and graphical abstracts without quantitative claims.
-   - Use `raster-illustration` for explicitly generated photorealistic concepts, 3D-style scientific scenes, graphical abstracts, or cover art. Read [references/raster-illustration.md](references/raster-illustration.md) before planning or executing this route.
-   - Use `hybrid-composite` when one Figure mixes raster imagery/evidence with vector modules, text, arrows, axes, or plots. Read [references/hybrid-representation.md](references/hybrid-representation.md), define a reviewed `representation_contract`, add `data-role` to every governed element, and run `audit_hybrid_svg.py` before QA.
+   - Use `raster-illustration` for explicitly generated photorealistic concepts, 3D-style scientific scenes, graphical abstracts, or cover art. Read [references/raster-illustration.md](references/raster-illustration.md) before planning or executing this route. Prefer built-in image generation followed by `--builtin-image <PNG> --builtin-prompt <UTF8.txt>` import; this reuses deterministic annotations and scientific QA.
+   - Use `hybrid-composite` when one Figure mixes raster imagery/evidence with vector modules, text, arrows, axes, or plots. Read [references/hybrid-representation.md](references/hybrid-representation.md), define a reviewed `representation_contract`, and add `data-role` to every governed element. Build the SVG from that contract, then resume with `--hybrid-svg <absolute.svg> --hybrid-asset-root <asset-root>` to audit, export, and prepare scientific review. A handoff alone returns exit code 2 and `reports/workflow-status.json` reports `awaiting-hybrid-svg`; continue constructing the SVG within the authorized task instead of declaring completion. Export with pending review also returns 2; inspect `reports/qa-report.json`, complete the existing scientific review flow, and rerun QA before delivery.
    - Use `edit` when the primary job is revising an existing SVG, draw.io file, or supplied figure.
    - For advanced native SVG geometry or graph edits, read [references/advanced-svg-editing.md](references/advanced-svg-editing.md), prepare exact reviewed JSON operations, and use semantic operations only when graph metadata is present or explicitly bound.
    - Use `composite` when a figure combines evidence-backed plots with explanatory illustration panels.
@@ -95,6 +101,7 @@ The deterministic core must remain usable when optional AI repositories or crede
 ## Tool behavior
 
 - Treat PaperBanana, AutoFigure-Edit, Happy Figure, draw.io MCP, and image-generation services as optional backends. Detect availability before promising their use.
+- Built-in image generation is called by the agent through its available tool, never through a Python subprocess. Load the installed `imagegen` skill when available. Do not request API credentials or silently fall back to an external provider for this path. If unavailable, explain the limitation and continue with deterministic work; use a paid API fallback only when the user chooses it.
 - The deterministic MVP does not call these external backends automatically; keep their future adapters isolated from the core evidence pipeline.
 - Read [references/external-backends.md](references/external-backends.md) before preparing or executing draw.io, Happy Figure, PaperBanana, or AutoFigure-Edit requests.
 - Read [references/backend-selection.md](references/backend-selection.md) before adding or replacing an external backend; it records the reviewed alternatives, licenses, and unavailable links from the team list.

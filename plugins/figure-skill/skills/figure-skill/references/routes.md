@@ -26,9 +26,9 @@ Choose only for explicitly generated conceptual imagery: photorealistic scientif
 
 - Mark the evidence role as `illustrative` and require human review.
 - Record entities, relationships, visible labels, forbidden content, model, endpoint, prompt hash, and output hash.
-- Use the member's `FIGURE_IMAGE_API_KEY`; do not persist or log it.
+- Prefer the agent's built-in image tool and local artifact import; read [builtin-image-generation.md](builtin-image-generation.md). Use the member's `FIGURE_IMAGE_API_KEY` only for an explicitly selected BYOK route; do not persist or log it.
 - Do not use generated imagery as microscopy, medical, field, instrument, or quantitative evidence.
-- Current backend: `scripts/adapters/raster_illustration_adapter.py` using an OpenAI-compatible Images protocol.
+- Current backends: `scripts/adapters/builtin_image_adapter.py` imports a tool-generated PNG without network access; `scripts/adapters/raster_illustration_adapter.py` uses an explicitly selected OpenAI-compatible Images API.
 
 ## Edit
 
@@ -42,6 +42,8 @@ Choose when an existing figure is the authoritative starting point.
 
 Choose for multi-panel figures that combine plots and diagrams.
 
+Infer this route from a request to combine panels or methods with results. An incidental README or reference image beside a data table does not by itself request a composite. Explicit editing intent takes precedence over incidental data. A quantitative heatmap with axes remains a data plot unless raster/vector composition is requested.
+
 1. Generate quantitative panels independently from source data.
 2. Generate or draw explanatory panels independently.
 3. Assemble panels using a vector or layout tool.
@@ -53,6 +55,8 @@ Use `scripts/assemble_figure.py` to preserve panel SVGs in the final SVG and exp
 ## Hybrid composite
 
 Choose when raster and vector representations intentionally coexist inside one Figure. Define a role-by-role `representation_contract`, compose a hybrid SVG with `data-role` attributes, and run `scripts/audit_hybrid_svg.py`. Read [hybrid-representation.md](hybrid-representation.md) for the contract and hash-audit workflow.
+
+To finish a reviewed handoff, use `figure.py workflow --plan <figure-plan.json> --output <output-root> --approve-plan --hybrid-svg <figure.svg> --hybrid-asset-root <asset-root>`. Keep the constructed source and assets outside the handoff output directory. The workflow audits the SVG, preserves it as editable panel/final sources, exports PNG/PDF, and prepares scientific review. Missing source or pending review returns exit code 2; audit failures are failures. Only the empty handoff skeleton can be resumed without `--force`; existing renders remain protected.
 
 ## Backend decision order
 

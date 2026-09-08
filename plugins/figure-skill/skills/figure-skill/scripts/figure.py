@@ -120,7 +120,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Bootstrap and run Figure Skill without depending on the current working directory."
     )
-    parser.add_argument("command", choices=("setup", "status", "bootstrap", "backends", "doctor", "workflow", "qa", "review", "runtime-path"))
+    parser.add_argument("command", choices=("setup", "status", "bootstrap", "backends", "doctor", "workflow", "main-figure", "qa", "review", "runtime-path"))
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if args.command in {"setup", "status"}:
@@ -136,6 +136,7 @@ def main() -> int:
             parser.error("runtime-path does not accept additional arguments")
         return print_runtime_path()
     tools = {
+        "main-figure": "main_figure.py",
         "doctor": "check_environment.py",
         "workflow": "run_workflow.py",
         "qa": "qa_figure.py",

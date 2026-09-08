@@ -4,6 +4,12 @@
 
 Current internal release: `v0.12.0`
 
+## 生成式科研主图（本地开发功能）
+
+新增 `figure.py main-figure prepare|import|compose|export`：代理从源材料编写设计说明，调用内置生图工具生成两个构图候选，按科学正确性优先筛选，再组合可编辑文字、主要箭头和真实数据图。每轮任务最多五次生成调用；最终交付 SVG/PDF/PNG 与来源记录，用户审核前保持终稿候选状态。
+
+使用说明及接口见 [主图工作流](plugins/figure-skill/skills/figure-skill/references/main-figure.md)。运行 `python scripts/prepare_main_figure_acceptance.py --output <new-directory>` 可准备现有演示材料的三组验收设计说明；该脚本不会调用生图工具或代替人工审核。
+
 ## 测试案例展示
 
 | 案例与验收结果 | 成图预览 |
@@ -81,6 +87,16 @@ codex plugin add figure-skill@mwm-research
 
 ## 照片风格与 3D 科研插画
 
+在 Codex 中默认优先使用当前任务可用的内置生图工具，无需额外配置 API Key。Figure Skill 负责科学内容规划，Codex 调用生图工具生成概念插画或局部素材，再导入现有确定性标注和 QA 流程；数据图与精确结构仍使用原有后端。调用示例：
+
+```text
+使用 $figure-skill，根据我的研究材料制作科研图；需要概念插画素材时调用 Codex 内置生图工具，文字、箭头和数据图保留为确定性绘制。
+```
+
+内置工具生成完成后，代理使用 `workflow --plan <计划> --output <输出目录> --approve-plan --builtin-image <实际PNG路径> --builtin-prompt <实际提示词文件>` 导入。该命令只处理本地文件，不会调用 API。详见 [内置生图集成](plugins/figure-skill/skills/figure-skill/references/builtin-image-generation.md)。内置工具不可用时不会自动切换付费服务。
+
+以下为用户明确选择自带 Key 时的替代配置。
+
 团队默认使用 OpenAI 兼容地址 `https://right.codes/codex/v1` 和模型 `gpt-image-2`。每位成员只配置自己的 Key；Key 不进入仓库、计划、提示词、请求清单或 QA 报告。
 
 Windows 成员在完整仓库中可交互运行：
@@ -128,6 +144,10 @@ python "$FigureSkill\scripts\figure.py" workflow `
   --output .\outputs\demo `
   --approve-plan
 ```
+
+用户已明确指定的小范围 SVG 文字替换或精确 ID 样式修改，可将原指令及对应操作记录到计划的 `approval_basis`，检查计划后直接使用已有授权执行，无需重复询问。涉及科学含义、数据或拓扑变更，以及尚未明确的操作，仍需审核。
+
+Hybrid 路线在缺少成图时返回退出码 `2`，并在 `reports/workflow-status.json` 标记 `awaiting-hybrid-svg`。构图后追加 `--hybrid-svg <figure.svg> --hybrid-asset-root <asset-root>` 继续，可完成源码审计、SVG/PNG/PDF 导出与科学审核准备。审核未完成仍返回 `2`，不能将交接清单或导出成功视为最终验收通过。
 
 编辑已有 SVG 时，先把明确操作写成 JSON 数组；不提供操作时计划会保留 `open_questions`，无法误审批：
 

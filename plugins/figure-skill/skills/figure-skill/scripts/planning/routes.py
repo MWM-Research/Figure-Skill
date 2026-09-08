@@ -22,7 +22,7 @@ RASTER_ILLUSTRATION_WORDS = (
     "photorealistic", "photo style", "photo-style", "3d", "three-dimensional",
     "照片风格", "照片级", "写实", "三维", "3d科研", "科研插画", "概念插画",
 )
-HYBRID_RASTER_WORDS = ("raster", "栅格", "video frame", "视频帧", "heatmap", "热力图", "photo", "image")
+HYBRID_RASTER_WORDS = ("raster", "栅格", "video frame", "视频帧", "photo", "照片", "显微图")
 HYBRID_VECTOR_WORDS = ("vector", "矢量", "module", "模块", "arrow", "箭头", "axis", "坐标轴", "bar chart", "柱状图")
 HEATMAP_WORDS = ("heatmap", "heat map", "热力图", "confusion matrix", "混淆矩阵")
 LINE_WORDS = ("line chart", "line plot", "curve", "training curve", "折线图", "曲线", "多系列", "multi-series")
@@ -58,6 +58,8 @@ def choose_route(inventory: dict, brief: str, explicit: str = "auto") -> str:
     has_context = bool(counts.get("narrative") or counts.get("raster") or counts.get("vector"))
     has_editable = any(path.suffix.lower() in EDIT_SUFFIXES for path in paths)
     wants_edit = any(word in brief.lower() for word in EDIT_WORDS)
+    if has_editable and wants_edit:
+        return "edit"
     wants_hybrid = (
         "hybrid" in brief.lower() or "混合" in brief
         or (
@@ -70,10 +72,12 @@ def choose_route(inventory: dict, brief: str, explicit: str = "auto") -> str:
     wants_raster_illustration = any(word in brief.lower() for word in RASTER_ILLUSTRATION_WORDS)
     if wants_raster_illustration and not has_data:
         return "raster-illustration"
-    if has_data and has_context:
+    wants_composite = any(word in brief.lower() for word in (
+        "composite", "combined figure", "multi-panel", "method figure", "architecture",
+        "workflow", "多面板", "组合图", "架构", "流程图", "方法图",
+    ))
+    if has_data and has_context and wants_composite:
         return "composite"
     if has_data:
         return "data-plot"
-    if has_editable and wants_edit:
-        return "edit"
     return "illustration"

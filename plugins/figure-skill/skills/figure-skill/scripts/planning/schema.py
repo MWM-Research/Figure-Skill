@@ -16,7 +16,7 @@ def build_plan(
     backend_map = {
         "data-plot": ["project-native plotting stack", "Python/Matplotlib"],
         "illustration": ["native SVG or draw.io", "PaperBanana-style pipeline", "image generator draft"],
-        "raster-illustration": ["BYOK OpenAI-compatible Images API", "deterministic 3D renderer when available"],
+        "raster-illustration": ["Codex built-in image tool plus local import when available", "explicitly selected BYOK OpenAI-compatible Images API", "deterministic 3D renderer when available"],
         "hybrid-composite": ["hybrid SVG compositor", "Draw.io for architecture", "audit_hybrid_svg.py"],
         "edit": ["native SVG editor or draw.io", "AutoFigure-Edit for raster-to-SVG reconstruction"],
         "composite": ["Python/Matplotlib for evidence panels", "SVG or draw.io for assembly"],

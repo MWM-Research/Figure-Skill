@@ -13,6 +13,7 @@ import shutil
 import struct
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -237,13 +238,18 @@ def annotate(
         shutil.copy2(background, original)
     source_svg = source_dir / f"panel_{str(panel['id']).lower()}_annotation.svg"
     document, labels = build_svg(original, panel, width, height)
+    tree = ET.fromstring(document)
+    for index, element in enumerate(tree.iter()):
+        if element.tag.rsplit('}', 1)[-1] in {'text', 'path', 'line', 'image'}:
+            element.set('id', f"panel-{panel['id']}-annotation-{index}")
+    document = ET.tostring(tree, encoding='unicode')
     source_svg.write_text(document, encoding="utf-8")
     rendered = source_dir / f"panel_{str(panel['id']).lower()}_annotated-preview.png"
     render_svg(source_svg, rendered, width, height)
     final_panel = output_dir / f"panel_{str(panel['id']).lower()}.png"
     shutil.copy2(rendered, final_panel)
     archived_source = source_dir / f"panel_{str(panel['id']).lower()}_annotation.svg.txt"
-    source_svg.replace(archived_source)
+    shutil.copy2(source_svg, archived_source)  # Keep the legacy archive and the editable SVG.
     provenance = {
         "schema_version": "1.0",
         "panel": panel.get("id"),
